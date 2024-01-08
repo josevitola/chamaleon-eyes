@@ -1,3 +1,10 @@
+type PointLabelConfig = {
+  label: string;
+  fontSize?: number;
+};
+
+const DEFAULT_CONFIG = { label: '', fontSize: 10 };
+
 export class Point {
   x: number;
   y: number;
@@ -14,21 +21,20 @@ export class Point {
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  label(ctx: CanvasRenderingContext2D, label = '', offset = { x: 0, y: -10 }) {
-    console.log(':(');
+  label(ctx: CanvasRenderingContext2D, config?: PointLabelConfig) {
     const { x, y } = this;
-    const { x: offsetX, y: offsetY } = offset;
+    const { fontSize, label } = { ...DEFAULT_CONFIG, ...config };
 
     ctx.save();
-    ctx.font = '10px Arial';
+    ctx.font = `${fontSize}px Arial`;
     ctx.fillStyle = 'white';
     ctx.beginPath();
-    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.arc(x, y, Math.floor(fontSize / 2), 0, Math.PI * 2);
     ctx.fill();
     ctx.fillText(
       `${label ? `${label}:` : ''}(${~~x}, ${~~y})`,
-      x + offsetX,
-      y + offsetY
+      x + fontSize,
+      y + fontSize
     );
     ctx.restore();
   }

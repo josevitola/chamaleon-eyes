@@ -158,7 +158,7 @@ export class Eye {
     // draw arc point
     if (debugMode) {
       ctx.fillStyle = 'lightblue';
-      this.arcPoint.label(ctx, `arc`);
+      this.arcPoint.label(ctx);
     }
 
     ctx.restore();
