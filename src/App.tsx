@@ -26,7 +26,11 @@ function App() {
           eye.updateBlink();
         }
 
-        eye.draw(ctx);
+        eye.draw(ctx, {
+          point: mousePos,
+          windowHeight: CANVAS_HEIGHT,
+          windowWidth: CANVAS_WIDTH,
+        });
       });
 
       if (mousePos) {

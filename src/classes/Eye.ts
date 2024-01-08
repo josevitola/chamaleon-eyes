@@ -1,10 +1,17 @@
 import { arc } from '../utils/draw';
+import { mapRange } from '../utils/mapRange';
 import { Point } from './Point';
 
 type EyeConfig = {
   lineWidth?: number;
   color?: string;
   debugMode?: boolean;
+};
+
+type EyeFollowConfig = {
+  point: Point | undefined;
+  windowWidth: number;
+  windowHeight: number;
 };
 
 enum BlinkingModes {
@@ -81,16 +88,25 @@ export class Eye {
     ctx.translate(this.x, this.y);
   }
 
-  drawPupils(ctx: CanvasRenderingContext2D) {
-    const { r } = this;
+  drawPupils(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
+    const { r, startPoint } = this;
+    const { x, y } = followConfig.point ?? new Point();
+
+    const mapX =
+      -1 *
+      (mapRange(x, [0, followConfig.windowWidth], [0, 2 * startPoint.x]) -
+        startPoint.x);
+
+    const mapY =
+      mapRange(y, [0, followConfig.windowHeight], [0, 2 * this.r]) - this.r;
 
     // draw concentric circles
     [...Array(Eye.NUM_PUPILS).keys()].forEach((i) => {
       const logFactor = Math.log(i + 2) / Math.log(Eye.NUM_PUPILS + 1);
-      arc(ctx, 0, 0, r * logFactor, 0, Math.PI * 2);
+      arc(ctx, mapX, mapY, r * logFactor, 0, Math.PI * 2);
     });
 
-    arc(ctx, 0, 0, r * 0.1, 0, 2 * Math.PI);
+    arc(ctx, mapX, mapY, r * 0.1, 0, 2 * Math.PI);
   }
 
   fillEyelid(ctx: CanvasRenderingContext2D, dir = LidDirections.UP) {
@@ -184,11 +200,17 @@ export class Eye {
     }
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
+  draw(ctx: CanvasRenderingContext2D, followConfig?: EyeFollowConfig) {
     ctx.save();
+
     this.setupContext(ctx);
 
-    this.drawPupils(ctx);
+    this.drawPupils(ctx, {
+      point: new Point(0, 0),
+      windowHeight: 2,
+      windowWidth: 2,
+      ...followConfig,
+    });
     this.drawEyelids(ctx);
 
     ctx.restore();
