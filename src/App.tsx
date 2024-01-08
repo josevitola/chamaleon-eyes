@@ -1,17 +1,20 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import './App.css';
 import { Canvas } from './components/Canvas';
 
 function App() {
   const [count, setCount] = useState(0);
 
-  const draw = (ctx: CanvasRenderingContext2D, frameCount: number) => {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(50, 100, 20 * Math.sin(frameCount * 0.05) ** 2, 0, 2 * Math.PI);
-    ctx.fill();
-  };
+  const draw = useCallback(
+    (ctx: CanvasRenderingContext2D, frameCount: number) => {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(50, 100, 20 * Math.sin(frameCount * 0.05) ** 2, 0, 2 * Math.PI);
+      ctx.fill();
+    },
+    []
+  );
 
   return (
     <>

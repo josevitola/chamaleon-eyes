@@ -26,7 +26,7 @@ const Canvas = ({ draw, animated, ...rest }: CanvasProps) => {
     return () => {
       window.cancelAnimationFrame(animationFrameId);
     };
-  }, [animated]);
+  }, [draw, animated]);
 
   return <canvas ref={canvasRef} {...rest} />;
 };
