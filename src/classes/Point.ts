@@ -14,13 +14,22 @@ export class Point {
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  label(ctx: CanvasRenderingContext2D, i = 'p', offset = { x: 0, y: -20 }) {
+  label(ctx: CanvasRenderingContext2D, label = '', offset = { x: 0, y: -10 }) {
+    console.log(':(');
     const { x, y } = this;
     const { x: offsetX, y: offsetY } = offset;
-    ctx.font = '20px Arial';
+
+    ctx.save();
+    ctx.font = '10px Arial';
+    ctx.fillStyle = 'white';
     ctx.beginPath();
-    ctx.arc(x, y, 10, 0, Math.PI * 2);
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillText(`${i}:(${~~x}, ${~~y})`, x + offsetX, y + offsetY);
+    ctx.fillText(
+      `${label ? `${label}:` : ''}(${~~x}, ${~~y})`,
+      x + offsetX,
+      y + offsetY
+    );
+    ctx.restore();
   }
 }
