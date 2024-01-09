@@ -26,8 +26,6 @@ enum LidDirections {
 
 type EyelidConfig = {
   dir: LidDirections;
-  transparent?: boolean;
-  debugMode?: boolean;
 };
 
 export class Eye {
@@ -56,8 +54,6 @@ export class Eye {
 
   static DEFAULT_EYELID_CONFIG: Required<EyelidConfig> = {
     dir: LidDirections.UP,
-    transparent: false,
-    debugMode: false,
   };
 
   /** Eyelids need an additional angle in order to actually intersect.
@@ -117,61 +113,28 @@ export class Eye {
     arc(ctx, mapX, mapY, r * 0.1, 0, 2 * Math.PI);
   }
 
-  drawEyelidArc(ctx: CanvasRenderingContext2D, config?: EyelidConfig) {
-    const { arcPoint, startPoint, endPoint, R } = this;
-    const { dir, transparent } = { ...Eye.DEFAULT_EYELID_CONFIG, ...config };
-
-    ctx.beginPath();
+  __drawContourArc(ctx: CanvasRenderingContext2D) {
+    const { startPoint, arcPoint, endPoint, R } = this;
     ctx.moveTo(startPoint.x, startPoint.y);
     ctx.arcTo(
       arcPoint.x,
-      arcPoint.y * (dir === LidDirections.UP ? 1 : -1),
+      arcPoint.y,
       endPoint.x,
       endPoint.y,
       R * Eye.MAGIC_EYELID_RADIUS_FACTOR
     );
     ctx.lineTo(endPoint.x, endPoint.y);
-
-    ctx.stroke();
-
-    if (transparent) {
-      ctx.fill();
-    }
   }
 
-  drawEyelids(
-    ctx: CanvasRenderingContext2D,
-    { transparent, debugMode }: Omit<EyelidConfig, "dir"> = {
-      transparent: false,
-      debugMode: false,
-    }
-  ) {
-    ctx.save();
-
-    if (transparent) this.setupContext(ctx);
-
-    // different colors in case of debugging
-    if (transparent) {
-      ctx.strokeStyle = "rgba(255, 255, 255, 0);";
-      ctx.fillStyle = "rgba(255, 255, 255, 0);";
-    } else if (debugMode) {
-      ctx.strokeStyle = "lightblue";
-      ctx.fillStyle = "lightgreen";
-    }
-
-    // draw upper eyelid
-    this.drawEyelidArc(ctx, { dir: LidDirections.UP, transparent });
-
-    // draw lower eyelid
-    this.drawEyelidArc(ctx, { dir: LidDirections.DOWN, transparent });
-
-    // draw arc point
-    if (debugMode) {
-      ctx.fillStyle = "lightblue";
-      this.arcPoint.label(ctx);
-    }
-
-    ctx.restore();
+  drawContour(ctx: CanvasRenderingContext2D) {
+    ctx.beginPath();
+    this.__drawContourArc(ctx);
+    ctx.rotate(Math.PI);
+    this.__drawContourArc(ctx);
+    ctx.clip();
+    ctx.stroke();
+    ctx.closePath();
+    ctx.rotate(Math.PI);
   }
 
   startBlinking() {
@@ -199,13 +162,13 @@ export class Eye {
 
     this.setupContext(ctx);
 
+    this.drawContour(ctx);
     this.drawPupils(ctx, {
       point: new Point(0, 0),
       windowHeight: 2,
       windowWidth: 2,
       ...followConfig,
     });
-    this.drawEyelids(ctx);
 
     ctx.restore();
   }

@@ -1,6 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
 import { Canvas } from "../Canvas";
-import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "./ChamaleonEyes.constants";
+import {
+  DEFAULT_BLINK_PROB,
+  DEFAULT_HEIGHT,
+  DEFAULT_WIDTH,
+} from "./ChamaleonEyes.constants";
 import { Point } from "../../classes/Point";
 import { initializeEyes } from "../../utils/initializeEyes";
 
@@ -28,7 +32,7 @@ const ChamaleonEyes = ({
 
       eyes.forEach((eye) => {
         if (frame > 50) {
-          if (Math.random() < 0.003) {
+          if (Math.random() < DEFAULT_BLINK_PROB) {
             eye.startBlinking();
           }
 
@@ -42,26 +46,12 @@ const ChamaleonEyes = ({
         });
       });
 
-      if (mousePos) {
-        mousePos.label(ctx);
-      }
+      // if (mousePos) {
+      //   mousePos.label(ctx);
+      // }
     },
     [mousePos]
   );
-
-  const debugDraw = useCallback((ctx: CanvasRenderingContext2D) => {
-    ctx.fillStyle = "blue";
-    ctx.fillRect(0, 0, width, height);
-  }, []);
-
-  const drawCover = useCallback((ctx: CanvasRenderingContext2D) => {
-    ctx.fillStyle = "#242424";
-    ctx.fillRect(0, 0, width, height);
-
-    eyes.forEach((eye) => {
-      eye.drawEyelids(ctx, { transparent: true, debugMode: true });
-    });
-  }, []);
 
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = e.target as HTMLCanvasElement;
@@ -72,29 +62,13 @@ const ChamaleonEyes = ({
   }, []);
 
   return (
-    <div
-      style={{
-        border: "1px solid darkgray",
-        position: "relative",
-        width: `${width}px`,
-        height: `${height}px`,
-      }}
-    >
+    <div style={{ border: "1px solid darkgray" }}>
       <Canvas
-        style={{ position: "absolute", zIndex: 0, top: 0, left: 0 }}
         animated={animated}
         width={width}
         height={height}
-        draw={debugDraw}
+        draw={drawEyes}
         onMouseMove={onMouseMove}
-      />
-
-      <Canvas
-        style={{ position: "absolute", zIndex: 1, top: 0, left: 0 }}
-        animated={animated}
-        width={width}
-        height={height}
-        draw={drawCover}
       />
     </div>
   );
