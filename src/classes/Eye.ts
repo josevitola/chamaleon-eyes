@@ -1,11 +1,10 @@
-import { arc } from '../utils/draw';
-import { mapRange } from '../utils/mapRange';
-import { Point } from './Point';
+import { arc } from "../utils/draw";
+import { mapRange } from "../utils/mapRange";
+import { Point } from "./Point";
 
 type EyeConfig = {
   lineWidth?: number;
   color?: string;
-  debugMode?: boolean;
 };
 
 type EyeFollowConfig = {
@@ -15,15 +14,21 @@ type EyeFollowConfig = {
 };
 
 enum BlinkingModes {
-  IDLE = 'IDLE',
-  OPENING = 'OPENING',
-  CLOSING = 'CLOSING',
+  IDLE = "IDLE",
+  OPENING = "OPENING",
+  CLOSING = "CLOSING",
 }
 
 enum LidDirections {
-  UP = 'UP',
-  DOWN = 'DOWN',
+  UP = "UP",
+  DOWN = "DOWN",
 }
+
+type EyelidConfig = {
+  dir: LidDirections;
+  transparent?: boolean;
+  debugMode?: boolean;
+};
 
 export class Eye {
   x: number;
@@ -33,7 +38,6 @@ export class Eye {
 
   color: string;
   lineWidth: number;
-  debugMode: boolean;
 
   startPoint: Point;
   arcPoint: Point;
@@ -45,9 +49,14 @@ export class Eye {
   static BLINK_SPEED = 2;
   static NUM_PUPILS = 3;
 
-  static DEFAULT_CONFIG = {
+  static DEFAULT_CONFIG: Required<EyeConfig> = {
     lineWidth: 5,
-    color: 'orange',
+    color: "orange",
+  };
+
+  static DEFAULT_EYELID_CONFIG: Required<EyelidConfig> = {
+    dir: LidDirections.UP,
+    transparent: false,
     debugMode: false,
   };
 
@@ -57,7 +66,7 @@ export class Eye {
   static MAGIC_CORNER_FACTOR = 1.05;
 
   constructor(x: number, y: number, r: number, config: EyeConfig) {
-    const { color, debugMode, lineWidth } = {
+    const { color, lineWidth } = {
       ...Eye.DEFAULT_CONFIG,
       ...config,
     };
@@ -68,7 +77,6 @@ export class Eye {
 
     this.color = color;
     this.lineWidth = lineWidth;
-    this.debugMode = debugMode;
 
     this.R = Math.round((3 * r) / (1 - Math.cos(Eye.THETA)));
 
@@ -109,35 +117,9 @@ export class Eye {
     arc(ctx, mapX, mapY, r * 0.1, 0, 2 * Math.PI);
   }
 
-  fillEyelid(ctx: CanvasRenderingContext2D, dir = LidDirections.UP) {
-    const { arcPoint, startPoint, endPoint, lineWidth, r, R } = this;
-
-    const iy = r + lineWidth * 3;
-    const dirFactor = dir === LidDirections.UP ? -1 : 1;
-
-    ctx.beginPath();
-    ctx.moveTo(arcPoint.x, iy * dirFactor);
-    ctx.lineTo(startPoint.x, iy * dirFactor);
-    ctx.lineTo(startPoint.x, startPoint.y);
-
-    if (this.debugMode) ctx.fillStyle = 'blue';
-
-    ctx.moveTo(startPoint.x, startPoint.y);
-    ctx.arcTo(
-      arcPoint.x,
-      arcPoint.y * dirFactor * -1,
-      endPoint.x,
-      endPoint.y,
-      R * Eye.MAGIC_EYELID_RADIUS_FACTOR
-    );
-    ctx.lineTo(endPoint.x, endPoint.y);
-    ctx.lineTo(endPoint.x, iy * dirFactor);
-    ctx.lineTo(arcPoint.x, iy * dirFactor);
-    ctx.fill();
-  }
-
-  drawEyelidArc(ctx: CanvasRenderingContext2D, dir = LidDirections.UP) {
+  drawEyelidArc(ctx: CanvasRenderingContext2D, config?: EyelidConfig) {
     const { arcPoint, startPoint, endPoint, R } = this;
+    const { dir, transparent } = { ...Eye.DEFAULT_EYELID_CONFIG, ...config };
 
     ctx.beginPath();
     ctx.moveTo(startPoint.x, startPoint.y);
@@ -149,31 +131,43 @@ export class Eye {
       R * Eye.MAGIC_EYELID_RADIUS_FACTOR
     );
     ctx.lineTo(endPoint.x, endPoint.y);
+
     ctx.stroke();
+
+    if (transparent) {
+      ctx.fill();
+    }
   }
 
-  drawEyelids(ctx: CanvasRenderingContext2D) {
-    const { debugMode } = this;
-
+  drawEyelids(
+    ctx: CanvasRenderingContext2D,
+    { transparent, debugMode }: Omit<EyelidConfig, "dir"> = {
+      transparent: false,
+      debugMode: false,
+    }
+  ) {
     ctx.save();
 
+    if (transparent) this.setupContext(ctx);
+
     // different colors in case of debugging
-    if (debugMode) {
-      ctx.strokeStyle = 'lightblue';
-      ctx.fillStyle = 'lightgreen';
+    if (transparent) {
+      ctx.strokeStyle = "rgba(255, 255, 255, 0);";
+      ctx.fillStyle = "rgba(255, 255, 255, 0);";
+    } else if (debugMode) {
+      ctx.strokeStyle = "lightblue";
+      ctx.fillStyle = "lightgreen";
     }
 
     // draw upper eyelid
-    this.fillEyelid(ctx, LidDirections.UP);
-    this.drawEyelidArc(ctx, LidDirections.UP);
+    this.drawEyelidArc(ctx, { dir: LidDirections.UP, transparent });
 
     // draw lower eyelid
-    this.fillEyelid(ctx, LidDirections.DOWN);
-    this.drawEyelidArc(ctx, LidDirections.DOWN);
+    this.drawEyelidArc(ctx, { dir: LidDirections.DOWN, transparent });
 
     // draw arc point
     if (debugMode) {
-      ctx.fillStyle = 'lightblue';
+      ctx.fillStyle = "lightblue";
       this.arcPoint.label(ctx);
     }
 

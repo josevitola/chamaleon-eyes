@@ -13,9 +13,7 @@ export function initializeEyes(width: number, height: number) {
       const x = ((2 * i - 1) * width) / (2 * ROWS),
         y = ((2 * j - 1) * height) / (2 * COLS);
 
-      eyes.push(
-        new Eye(x, y, RADIUS, { lineWidth: LINE_WIDTH, debugMode: false })
-      );
+      eyes.push(new Eye(x, y, RADIUS, { lineWidth: LINE_WIDTH }));
     }
   }
 

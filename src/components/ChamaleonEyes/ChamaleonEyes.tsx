@@ -50,7 +50,8 @@ const ChamaleonEyes = ({
   );
 
   const debugDraw = useCallback((ctx: CanvasRenderingContext2D) => {
-    ctx.fillStyle = "orange";
+    ctx.fillStyle = "blue";
+    ctx.fillRect(0, 0, width, height);
   }, []);
 
   const drawCover = useCallback((ctx: CanvasRenderingContext2D) => {
@@ -58,12 +59,8 @@ const ChamaleonEyes = ({
     ctx.fillRect(0, 0, width, height);
 
     eyes.forEach((eye) => {
-      eye.drawEyelids(ctx);
+      eye.drawEyelids(ctx, { transparent: true, debugMode: true });
     });
-
-    if (mousePos) {
-      mousePos.label(ctx);
-    }
   }, []);
 
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -84,21 +81,20 @@ const ChamaleonEyes = ({
       }}
     >
       <Canvas
-        style={{ position: "absolute", zIndex: 1, top: 0, left: 0 }}
-        animated={animated}
-        width={width}
-        height={height}
-        draw={drawEyes}
-        onMouseMove={onMouseMove}
-      />
-
-      <Canvas
         style={{ position: "absolute", zIndex: 0, top: 0, left: 0 }}
         animated={animated}
         width={width}
         height={height}
-        draw={drawCover}
+        draw={debugDraw}
         onMouseMove={onMouseMove}
+      />
+
+      <Canvas
+        style={{ position: "absolute", zIndex: 1, top: 0, left: 0 }}
+        animated={animated}
+        width={width}
+        height={height}
+        draw={drawCover}
       />
     </div>
   );

@@ -10,7 +10,11 @@ function App() {
 
   return (
     <>
-      <ChamaleonEyes width={CANVAS_WIDTH} height={CANVAS_HEIGHT} />
+      <ChamaleonEyes
+        animated={animation}
+        width={CANVAS_WIDTH}
+        height={CANVAS_HEIGHT}
+      />
 
       <h1>Camaleones</h1>
       <div className="card">
