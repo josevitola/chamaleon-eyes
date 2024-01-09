@@ -1,8 +1,8 @@
-import { Eye } from '../classes/Eye';
+import { Eye } from "../classes/Eye";
 
-const RADIUS = 25;
-const ROWS = 2,
-  COLS = 2;
+const RADIUS = 100;
+const ROWS = 1,
+  COLS = 1;
 const LINE_WIDTH = 2;
 
 export function initializeEyes(width: number, height: number) {
