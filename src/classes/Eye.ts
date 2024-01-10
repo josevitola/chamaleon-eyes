@@ -92,27 +92,6 @@ export class Eye {
     ctx.translate(this.x, this.y);
   }
 
-  drawPupils(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
-    const { r, startPoint } = this;
-    const { x, y } = followConfig.point ?? new Point();
-
-    const mapX =
-      -1 *
-      (mapRange(x, [0, followConfig.windowWidth], [0, 2 * startPoint.x]) -
-        startPoint.x);
-
-    const mapY =
-      mapRange(y, [0, followConfig.windowHeight], [0, 2 * this.r]) - this.r;
-
-    // draw concentric circles
-    [...Array(Eye.NUM_PUPILS).keys()].forEach((i) => {
-      const logFactor = Math.log(i + 2) / Math.log(Eye.NUM_PUPILS + 1);
-      arc(ctx, mapX, mapY, r * logFactor, 0, Math.PI * 2);
-    });
-
-    arc(ctx, mapX, mapY, r * 0.1, 0, 2 * Math.PI);
-  }
-
   __drawContourArc(ctx: CanvasRenderingContext2D) {
     const { startPoint, arcPoint, endPoint, R } = this;
     ctx.moveTo(startPoint.x, startPoint.y);
@@ -135,6 +114,34 @@ export class Eye {
     ctx.stroke();
     ctx.closePath();
     ctx.rotate(Math.PI);
+  }
+
+  drawPupils(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
+    const { r, startPoint } = this;
+    const { x, y } = followConfig.point ?? new Point();
+
+    ctx.save();
+    ctx.resetTransform();
+    ctx.translate(this.x, this.y);
+
+    const mapX =
+      -1 *
+      mapRange(x - this.x, [0, followConfig.windowWidth], [0, startPoint.x]);
+
+    const mapY = mapRange(
+      y - this.y,
+      [0, followConfig.windowHeight],
+      [0, this.r]
+    );
+
+    // draw concentric circles
+    [...Array(Eye.NUM_PUPILS).keys()].forEach((i) => {
+      const logFactor = Math.log(i + 2) / Math.log(Eye.NUM_PUPILS + 1);
+      arc(ctx, mapX, mapY, r * logFactor, 0, Math.PI * 2);
+    });
+
+    arc(ctx, mapX, mapY, r * 0.1, 0, 2 * Math.PI);
+    ctx.restore();
   }
 
   startBlinking() {

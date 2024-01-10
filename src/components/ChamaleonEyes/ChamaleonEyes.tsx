@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { Canvas } from "../Canvas";
 import {
   DEFAULT_BLINK_PROB,
@@ -6,9 +6,10 @@ import {
   DEFAULT_WIDTH,
 } from "./ChamaleonEyes.constants";
 import { Point } from "../../classes/Point";
-import { initializeEyes } from "../../utils/initializeEyes";
+import { Eye } from "../../classes/Eye";
 
 interface ChamaleonEyesProps {
+  eyes: Eye[];
   width: number;
   height: number;
   animated?: boolean;
@@ -16,11 +17,10 @@ interface ChamaleonEyesProps {
 
 const ChamaleonEyes = ({
   animated,
+  eyes,
   height = DEFAULT_HEIGHT,
   width = DEFAULT_WIDTH,
 }: ChamaleonEyesProps) => {
-  const eyes = useMemo(() => initializeEyes(width, height), [width, height]);
-
   const [mousePos, setMousePos] = useState<Point>(
     new Point(width / 2, height / 2)
   );
@@ -46,9 +46,9 @@ const ChamaleonEyes = ({
         });
       });
 
-      // if (mousePos) {
-      //   mousePos.label(ctx);
-      // }
+      if (mousePos) {
+        mousePos.label(ctx);
+      }
     },
     [mousePos]
   );
