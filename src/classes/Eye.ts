@@ -52,7 +52,7 @@ export class Eye {
     color: "orange",
   };
 
-  static DEFAULT_EYELID_CONFIG: Required<EyelidConfig> = {
+  static DEFAULT_EYELID_CONFIG: EyelidConfig = {
     dir: LidDirections.UP,
   };
 

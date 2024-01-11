@@ -14,10 +14,10 @@ function App() {
       initializeEyes({
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
-        cols: 5,
-        lineWidth: 2,
-        radius: 20,
+        cols: 3,
         rows: 3,
+        lineWidth: 2,
+        radius: 30,
       }),
     [CANVAS_WIDTH, CANVAS_HEIGHT]
   );
