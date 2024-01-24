@@ -3,8 +3,8 @@ import "./App.css";
 import { ChamaleonEyes } from "./components/ChamaleonEyes";
 import { initializeEyes } from "./utils/initializeEyes";
 
-const CANVAS_WIDTH = 600,
-  CANVAS_HEIGHT = 300;
+const CANVAS_WIDTH = 1000,
+  CANVAS_HEIGHT = 500;
 
 function App() {
   const [animation, setAnimation] = useState(true);
@@ -15,7 +15,7 @@ function App() {
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
         cols: 3,
-        rows: 3,
+        rows: 5,
         lineWidth: 2,
         radius: 30,
       }),

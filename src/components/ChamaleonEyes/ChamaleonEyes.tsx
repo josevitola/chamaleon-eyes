@@ -44,11 +44,13 @@ const ChamaleonEyes = ({
           windowHeight: height,
           windowWidth: width,
         });
+
+        eye.drawBox(ctx, { mousePos });
       });
 
-      if (mousePos) {
-        mousePos.label(ctx);
-      }
+      // if (mousePos) {
+      //   mousePos.label(ctx);
+      // }
     },
     [mousePos]
   );

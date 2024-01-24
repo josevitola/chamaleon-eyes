@@ -179,4 +179,31 @@ export class Eye {
 
     ctx.restore();
   }
+
+  drawBox(ctx: CanvasRenderingContext2D, { mousePos }: { mousePos: Point }) {
+    ctx.save();
+    ctx.setLineDash([7, 7]);
+    ctx.beginPath();
+    ctx.translate(this.x, this.y);
+    ctx.fillStyle = "white";
+    ctx.strokeStyle = "white";
+    ctx.rect(
+      this.startPoint.x,
+      -this.r,
+      this.endPoint.x - this.startPoint.x,
+      2 * this.r
+    );
+    ctx.stroke();
+
+    if (ctx.isPointInStroke(mousePos.x, mousePos.y)) {
+      // ctx.canvas.style.cursor = "pointer";
+      ctx.fill();
+    }
+    // else {
+    //   ctx.canvas.style.cursor = "default";
+    // }
+
+    ctx.closePath();
+    ctx.restore();
+  }
 }
