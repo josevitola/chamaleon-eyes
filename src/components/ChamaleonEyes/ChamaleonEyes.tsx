@@ -13,6 +13,7 @@ interface ChamaleonEyesProps {
   width: number;
   height: number;
   animated?: boolean;
+  debug?: boolean;
 }
 
 const ChamaleonEyes = ({
@@ -20,6 +21,7 @@ const ChamaleonEyes = ({
   eyes,
   height = DEFAULT_HEIGHT,
   width = DEFAULT_WIDTH,
+  debug,
 }: ChamaleonEyesProps) => {
   const [mousePos, setMousePos] = useState<Point>(
     new Point(width / 2, height / 2)
@@ -45,12 +47,12 @@ const ChamaleonEyes = ({
           windowWidth: width,
         });
 
-        eye.drawBox(ctx, { mousePos });
+        if (debug) eye.drawBox(ctx, { mousePos });
       });
 
-      // if (mousePos) {
-      //   mousePos.label(ctx);
-      // }
+      if (debug && mousePos) {
+        mousePos.label(ctx);
+      }
     },
     [mousePos]
   );

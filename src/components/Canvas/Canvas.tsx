@@ -16,9 +16,9 @@ const Canvas = ({ draw, animated, ...rest }: CanvasProps) => {
     let animationFrameId: number;
 
     const render = () => {
-      draw(context, frame);
-      animationFrameId = window.requestAnimationFrame(render);
       if (animated) {
+        draw(context, frame);
+        animationFrameId = window.requestAnimationFrame(render);
         setFrame(() => frame + 1);
       }
     };
