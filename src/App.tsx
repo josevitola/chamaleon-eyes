@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import "./App.css";
-import { ChamaleonEyes } from "./components/ChamaleonEyes";
+import { EyeBoard } from "./components/EyeBoard";
 import { initializeEyes } from "./utils/initializeEyes";
 
 const CANVAS_WIDTH = 1000,
@@ -24,7 +24,7 @@ function App() {
 
   return (
     <>
-      <ChamaleonEyes
+      <EyeBoard
         animated={animation}
         eyes={eyes}
         width={CANVAS_WIDTH}

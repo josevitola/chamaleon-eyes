@@ -4,11 +4,11 @@ import {
   DEFAULT_BLINK_PROB,
   DEFAULT_HEIGHT,
   DEFAULT_WIDTH,
-} from "./ChamaleonEyes.constants";
+} from "./EyeBoard.constants";
 import { Point } from "../../classes/Point";
 import { Eye } from "../../classes/Eye";
 
-interface ChamaleonEyesProps {
+interface EyeBoardProps {
   eyes: Eye[];
   width: number;
   height: number;
@@ -16,13 +16,13 @@ interface ChamaleonEyesProps {
   debug?: boolean;
 }
 
-const ChamaleonEyes = ({
+export const EyeBoard = ({
   animated,
   eyes,
   height = DEFAULT_HEIGHT,
   width = DEFAULT_WIDTH,
   debug,
-}: ChamaleonEyesProps) => {
+}: EyeBoardProps) => {
   const [mousePos, setMousePos] = useState<Point>(
     new Point(width / 2, height / 2)
   );
@@ -65,6 +65,10 @@ const ChamaleonEyes = ({
     setMousePos(p);
   }, []);
 
+  const onClick = useCallback((event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+    console.log(event.clientX, event.clientY);
+  }, []);
+
   return (
     <div style={{ border: "1px solid darkgray" }}>
       <Canvas
@@ -73,9 +77,8 @@ const ChamaleonEyes = ({
         height={height}
         draw={drawEyes}
         onMouseMove={onMouseMove}
+        onClick={onClick}
       />
     </div>
   );
 };
-
-export default ChamaleonEyes;
