@@ -1,7 +1,7 @@
 import { DEFAULT_EYE_RADIUS } from '../constants';
 import { arc } from '../utils/draw';
 import { mapRange } from '../utils/mapRange';
-import { Area } from './Area';
+import { Plane } from './Plane';
 import { Point } from './Point';
 
 type EyeConfig = {
@@ -170,21 +170,21 @@ export class Eye {
     ctx.restore();
   }
 
-  getArea(): Area {
+  getPlane(): Plane {
     const refPoint = new Point(this.x, this.y);
-    return new Area(
+    return new Plane(
       this.startPoint.translate(refPoint).translateY(-this.r),
       this.endPoint.translate(refPoint).translateY(this.r),
     );
   }
 
   contains(point: Point) {
-    return this.getArea().contains(point);
+    return this.getPlane().contains(point);
   }
 
   drawBox(ctx: CanvasRenderingContext2D) {
     ctx.save();
-    this.getArea().draw(ctx);
+    this.getPlane().draw(ctx);
     ctx.restore();
   }
 

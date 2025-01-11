@@ -1,6 +1,6 @@
 import { Point } from './Point';
 
-export class Area {
+export class Plane {
   startPoint: Point;
   endPoint: Point;
 
