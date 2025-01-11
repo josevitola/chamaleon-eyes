@@ -179,14 +179,17 @@ export class Eye {
     ctx.stroke();
 
     if (ctx.isPointInStroke(mousePos.x, mousePos.y)) {
-      // ctx.canvas.style.cursor = "pointer";
+      ctx.canvas.style.cursor = 'pointer';
       ctx.fill();
+    } else {
+      ctx.canvas.style.cursor = 'default';
     }
-    // else {
-    //   ctx.canvas.style.cursor = "default";
-    // }
 
     ctx.closePath();
     ctx.restore();
+  }
+
+  drawDebug(ctx: CanvasRenderingContext2D, { mousePos }: { mousePos: Point }) {
+    this.drawBox(ctx, { mousePos });
   }
 }
