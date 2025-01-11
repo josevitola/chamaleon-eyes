@@ -10,9 +10,8 @@ export class Area {
   }
 
   contains(point: Point): boolean {
-    const containsX = point.x <= this.startPoint.x && point.x >= this.endPoint.x;
-    const containsY = point.y <= this.startPoint.y && point.y >= this.endPoint.y;
-    console.log(point.x - this.startPoint.x);
+    const containsX = point.x >= this.startPoint.x && point.x <= this.endPoint.x;
+    const containsY = point.y >= this.startPoint.y && point.y <= this.endPoint.y;
     return containsX && containsY;
   }
 

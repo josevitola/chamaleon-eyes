@@ -62,6 +62,7 @@ export class Eye {
    * Not sure why. */
   static MAGIC_EYELID_RADIUS_FACTOR = 0.93;
   static MAGIC_CORNER_FACTOR = 1.05;
+  static DEFAULT_BLINK_PROB = 0.003;
 
   constructor(x: number, y: number, r = DEFAULT_EYE_RADIUS, config = Eye.DEFAULT_CONFIG) {
     const { color, lineWidth } = {
@@ -181,17 +182,9 @@ export class Eye {
     return this.getArea().contains(point);
   }
 
-  // drawBox(ctx: CanvasRenderingContext2D, { mousePos }: { mousePos: Point }) {
   drawBox(ctx: CanvasRenderingContext2D) {
     ctx.save();
     this.getArea().draw(ctx);
-
-    // if (this.contains(mousePos)) {
-    //   ctx.fill();
-    // } else {
-    //   ctx.canvas.style.cursor = 'default';
-    // }
-
     ctx.restore();
   }
 
@@ -201,5 +194,13 @@ export class Eye {
 
   drawDebug(ctx: CanvasRenderingContext2D) {
     this.drawBox(ctx);
+  }
+
+  blinkRandomly() {
+    if (Math.random() < Eye.DEFAULT_BLINK_PROB) {
+      this.startBlinking();
+    }
+
+    this.updateBlink();
   }
 }
