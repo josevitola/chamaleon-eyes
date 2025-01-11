@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Canvas } from '../Canvas';
 import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from './EyeBoard.constants';
 import { Point } from '../../classes/Point';
@@ -25,6 +25,7 @@ export const EyeBoard = ({
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
   const [mousePos, setMousePos] = useState<Point>(() => new Point(width / 2, height / 2));
   const [currentEye, setCurrentEye] = useState<Eye>();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const drawEyes = useCallback((ctx: CanvasRenderingContext2D, frame: number) => {
     eyes.forEach((eye) => {
@@ -94,10 +95,11 @@ export const EyeBoard = ({
   const onClick = useCallback(
     ({ clientX, clientY }: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
       if (!currentEye) {
-        addToEyes(new Eye(new Point(clientX, clientY)));
+        const rect = canvasRef.current?.getBoundingClientRect() ?? { left: 0, top: 0 };
+        addToEyes(new Eye(new Point(clientX - rect.left, clientY - rect.top)));
       }
     },
-    [addToEyes, currentEye],
+    [addToEyes, currentEye, canvasRef.current],
   );
 
   const onMouseDown = useCallback(() => {
@@ -111,6 +113,7 @@ export const EyeBoard = ({
   return (
     <div style={{ border: '1px solid darkgray' }}>
       <Canvas
+        canvasRef={canvasRef}
         animated={animated}
         width={width}
         height={height}

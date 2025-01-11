@@ -35,7 +35,7 @@ export class Eye {
   r: number;
   R: number;
 
-  color: string = 'orange';
+  color: string = '#d57c7d';
   lineWidth: number;
 
   startPoint: Point;
@@ -52,7 +52,7 @@ export class Eye {
 
   static DEFAULT_CONFIG: Required<EyeConfig> = {
     lineWidth: 5,
-    color: 'orange',
+    color: '#d57c7d',
     pupilRadius: Eye.DEFAULT_PUPIL_RADIUS,
   };
 
