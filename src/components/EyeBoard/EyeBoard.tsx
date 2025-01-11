@@ -22,6 +22,7 @@ export const EyeBoard = ({
   eyes,
   addToEyes,
 }: EyeBoardProps) => {
+  const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
   const [mousePos, setMousePos] = useState<Point>(() => new Point(width / 2, height / 2));
   const [currentEye, setCurrentEye] = useState<Eye>();
 
@@ -75,13 +76,20 @@ export const EyeBoard = ({
     return foundEye;
   }, [mousePos, eyes, currentEye])
 
+  const moveCurrentEye = useCallback((newPos: Point) => {
+    if (isMouseDown) {
+      currentEye?.move(newPos);
+    }
+  }, [isMouseDown, currentEye])
+
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = e.target as HTMLCanvasElement;
     const rect = canvas.getBoundingClientRect();
     const p = new Point(e.clientX - rect.left, e.clientY - rect.top);
 
     setMousePos(p);
-  }, []);
+    moveCurrentEye(p);
+  }, [moveCurrentEye]);
 
   const onClick = useCallback(
     ({ clientX, clientY }: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
@@ -92,6 +100,14 @@ export const EyeBoard = ({
     [addToEyes, currentEye],
   );
 
+  const onMouseDown = useCallback(() => {
+    setIsMouseDown(true);
+  }, []);
+
+  const onMouseUp = useCallback(() => {
+    setIsMouseDown(false);
+  }, []);
+
   return (
     <div style={{ border: '1px solid darkgray' }}>
       <Canvas
@@ -100,6 +116,8 @@ export const EyeBoard = ({
         height={height}
         draw={draw}
         onMouseMove={onMouseMove}
+        onMouseDown={onMouseDown}
+        onMouseUp={onMouseUp}
         onClick={onClick}
       />
     </div>

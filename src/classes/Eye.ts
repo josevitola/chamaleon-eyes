@@ -200,4 +200,9 @@ export class Eye {
     this.drawRect(ctx);
     // new Point(this.x, this.y).label(ctx, { fillColor: 'red', showText: false });
   }
+
+  move(newPos: Point) {
+    this.x = newPos.x;
+    this.y = newPos.y;
+  }
 }
