@@ -1,6 +1,7 @@
 import { DEFAULT_EYE_RADIUS } from '../constants';
 import { arc } from '../utils/draw';
 import { mapRange } from '../utils/mapRange';
+import { Area } from './Area';
 import { Point } from './Point';
 
 type EyeConfig = {
@@ -168,28 +169,36 @@ export class Eye {
     ctx.restore();
   }
 
-  drawBox(ctx: CanvasRenderingContext2D, { mousePos }: { mousePos: Point }) {
+  getArea(): Area {
+    return new Area(
+      new Point(this.x - this.R, this.y - this.r),
+      new Point(this.x + this.R, this.y + this.r),
+    );
+  }
+
+  contains(point: Point) {
+    return this.getArea().contains(point);
+  }
+
+  // drawBox(ctx: CanvasRenderingContext2D, { mousePos }: { mousePos: Point }) {
+  drawBox(ctx: CanvasRenderingContext2D) {
     ctx.save();
-    ctx.setLineDash([7, 7]);
-    ctx.beginPath();
-    ctx.translate(this.x, this.y);
-    ctx.fillStyle = 'white';
-    ctx.strokeStyle = 'white';
-    ctx.rect(this.startPoint.x, -this.r, this.endPoint.x - this.startPoint.x, 2 * this.r);
-    ctx.stroke();
+    this.getArea().draw(ctx);
 
-    if (ctx.isPointInStroke(mousePos.x, mousePos.y)) {
-      ctx.canvas.style.cursor = 'pointer';
-      ctx.fill();
-    } else {
-      ctx.canvas.style.cursor = 'default';
-    }
+    // if (this.contains(mousePos)) {
+    //   ctx.fill();
+    // } else {
+    //   ctx.canvas.style.cursor = 'default';
+    // }
 
-    ctx.closePath();
     ctx.restore();
   }
 
-  drawDebug(ctx: CanvasRenderingContext2D, { mousePos }: { mousePos: Point }) {
-    this.drawBox(ctx, { mousePos });
+  // drawDebug(ctx: CanvasRenderingContext2D, { mousePos }: { mousePos: Point }) {
+  //   this.drawBox(ctx, { mousePos });
+  // }
+
+  drawDebug(ctx: CanvasRenderingContext2D) {
+    this.drawBox(ctx);
   }
 }
