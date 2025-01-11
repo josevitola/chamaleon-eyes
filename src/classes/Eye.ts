@@ -1,3 +1,4 @@
+import { DEFAULT_EYE_RADIUS } from "../constants";
 import { arc } from "../utils/draw";
 import { mapRange } from "../utils/mapRange";
 import { Point } from "./Point";
@@ -34,7 +35,7 @@ export class Eye {
   r: number;
   R: number;
 
-  color: string;
+  color: string = "orange";
   lineWidth: number;
 
   startPoint: Point;
@@ -47,7 +48,7 @@ export class Eye {
   static BLINK_SPEED = 2;
   static NUM_PUPILS = 3;
 
-  static DEFAULT_CONFIG: Required<EyeConfig> = {
+  static DEFAULT_CONFIG: EyeConfig = {
     lineWidth: 5,
     color: "orange",
   };
@@ -61,11 +62,16 @@ export class Eye {
   static MAGIC_EYELID_RADIUS_FACTOR = 0.93;
   static MAGIC_CORNER_FACTOR = 1.05;
 
-  constructor(x: number, y: number, r: number, config: EyeConfig) {
+  constructor(
+    x: number,
+    y: number,
+    r = DEFAULT_EYE_RADIUS,
+    config = Eye.DEFAULT_CONFIG
+  ) {
     const { color, lineWidth } = {
       ...Eye.DEFAULT_CONFIG,
       ...config,
-    };
+    } as Required<EyeConfig>;
 
     this.x = x;
     this.y = y;
