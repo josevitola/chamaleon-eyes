@@ -182,18 +182,10 @@ export class Eye {
     return this.getPlane().contains(point);
   }
 
-  drawBox(ctx: CanvasRenderingContext2D) {
+  drawRect(ctx: CanvasRenderingContext2D) {
     ctx.save();
     this.getPlane().draw(ctx);
     ctx.restore();
-  }
-
-  // drawDebug(ctx: CanvasRenderingContext2D, { mousePos }: { mousePos: Point }) {
-  //   this.drawBox(ctx, { mousePos });
-  // }
-
-  drawDebug(ctx: CanvasRenderingContext2D) {
-    this.drawBox(ctx);
   }
 
   blinkRandomly() {
@@ -202,5 +194,10 @@ export class Eye {
     }
 
     this.updateBlink();
+  }
+
+  debug(ctx: CanvasRenderingContext2D) {
+    this.drawRect(ctx);
+    // new Point(this.x, this.y).label(ctx, { fillColor: 'red', showText: false });
   }
 }

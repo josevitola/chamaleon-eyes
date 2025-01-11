@@ -3,6 +3,7 @@ import { Canvas } from '../Canvas';
 import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from './EyeBoard.constants';
 import { Point } from '../../classes/Point';
 import { Eye } from '../../classes/Eye';
+import { setCanvasCursor } from '../../utils/draw';
 
 interface EyeBoardProps {
   width: number;
@@ -22,6 +23,7 @@ export const EyeBoard = ({
   addToEyes,
 }: EyeBoardProps) => {
   const [mousePos, setMousePos] = useState<Point>(() => new Point(width / 2, height / 2));
+  const [currentEye, setCurrentEye] = useState<Eye>();
 
   const drawEyes = useCallback((ctx: CanvasRenderingContext2D, frame: number) => {
     eyes.forEach((eye) => {
@@ -34,13 +36,19 @@ export const EyeBoard = ({
         windowHeight: height,
         windowWidth: width,
       });
-
-      // if (debug) {
-      if (eye.contains(mousePos)) {
-        eye.drawDebug(ctx);
-      }
     });
-  }, [eyes, mousePos, debug])
+
+    if (debug) {
+      const currentEye = getCurrentEye();
+
+      if (currentEye) {
+        getCurrentEye()?.debug(ctx);
+        setCanvasCursor(ctx, 'move');
+      } else {
+        setCanvasCursor(ctx, 'default');
+      }
+    }
+  }, [eyes, mousePos, debug]);
 
   const draw = useCallback(
     (ctx: CanvasRenderingContext2D, frame: number) => {
@@ -56,6 +64,17 @@ export const EyeBoard = ({
     [mousePos, debug, drawEyes],
   );
 
+  const getCurrentEye = useCallback((): Eye | undefined => {
+    // if there is already a current eye, avoid looping through eye list --
+    // check if it still contains the mouse position
+    if (currentEye?.contains(mousePos)) return currentEye;
+
+    // else, loop through eye list
+    const foundEye = eyes.find((eye) => eye.contains(mousePos));
+    setCurrentEye(foundEye);
+    return foundEye;
+  }, [mousePos, eyes, currentEye])
+
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = e.target as HTMLCanvasElement;
     const rect = canvas.getBoundingClientRect();
@@ -66,9 +85,11 @@ export const EyeBoard = ({
 
   const onClick = useCallback(
     ({ clientX, clientY }: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-      addToEyes(new Eye(clientX, clientY));
+      if (!currentEye) {
+        addToEyes(new Eye(clientX, clientY));
+      }
     },
-    [addToEyes],
+    [addToEyes, currentEye],
   );
 
   return (

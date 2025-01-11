@@ -1,9 +1,16 @@
-type PointLabelConfig = {
+type PointLabelConfig = Partial<{
   label: string;
-  fontSize?: number;
-};
+  showText: boolean;
+  fillColor: string;
+  fontSize: number;
+}>;
 
-const DEFAULT_CONFIG = { label: '', fontSize: 10 };
+const DEFAULT_CONFIG: Required<PointLabelConfig> = {
+  label: '',
+  fillColor: 'white',
+  fontSize: 10,
+  showText: true,
+};
 
 export class Point {
   x: number;
@@ -35,15 +42,16 @@ export class Point {
 
   label(ctx: CanvasRenderingContext2D, config?: PointLabelConfig) {
     const { x, y } = this;
-    const { fontSize, label } = { ...DEFAULT_CONFIG, ...config };
+    const { fontSize, showText, fillColor, label } = { ...DEFAULT_CONFIG, ...config };
 
     ctx.save();
     ctx.font = `${fontSize}px Arial`;
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = fillColor;
     ctx.beginPath();
     ctx.arc(x, y, Math.floor(fontSize / 2), 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillText(`${label ? `${label}:` : ''}(${~~x}, ${~~y})`, x + fontSize, y + fontSize);
+    if (showText)
+      ctx.fillText(`${label ? `${label}:` : ''}(${~~x}, ${~~y})`, x + fontSize, y + fontSize);
     ctx.restore();
   }
 }
