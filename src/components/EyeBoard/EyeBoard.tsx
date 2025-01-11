@@ -94,7 +94,7 @@ export const EyeBoard = ({
   const onClick = useCallback(
     ({ clientX, clientY }: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
       if (!currentEye) {
-        addToEyes(new Eye(clientX, clientY));
+        addToEyes(new Eye(new Point(clientX, clientY)));
       }
     },
     [addToEyes, currentEye],

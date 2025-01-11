@@ -1,13 +1,13 @@
-import { DEFAULT_EYE_RADIUS } from '../constants';
 import { arc } from '../utils/draw';
 import { mapRange } from '../utils/mapRange';
 import { Plane } from './Plane';
 import { Point } from './Point';
 
-type EyeConfig = {
-  lineWidth?: number;
-  color?: string;
-};
+type EyeConfig = Partial<{
+  lineWidth: number;
+  color: string;
+  pupilRadius: number;
+}>;
 
 type EyeFollowConfig = {
   point: Point | undefined;
@@ -31,8 +31,7 @@ type EyelidConfig = {
 };
 
 export class Eye {
-  x: number;
-  y: number;
+  center: Point;
   r: number;
   R: number;
 
@@ -49,9 +48,12 @@ export class Eye {
   static BLINK_SPEED = 2;
   static NUM_PUPILS = 3;
 
-  static DEFAULT_CONFIG: EyeConfig = {
+  static DEFAULT_PUPIL_RADIUS = 30;
+
+  static DEFAULT_CONFIG: Required<EyeConfig> = {
     lineWidth: 5,
     color: 'orange',
+    pupilRadius: Eye.DEFAULT_PUPIL_RADIUS,
   };
 
   static DEFAULT_EYELID_CONFIG: EyelidConfig = {
@@ -64,25 +66,23 @@ export class Eye {
   static MAGIC_CORNER_FACTOR = 1.05;
   static DEFAULT_BLINK_PROB = 0.003;
 
-  constructor(x: number, y: number, r = DEFAULT_EYE_RADIUS, config = Eye.DEFAULT_CONFIG) {
-    const { color, lineWidth } = {
+  constructor(center: Point, config = Eye.DEFAULT_CONFIG) {
+    const { color, pupilRadius, lineWidth } = {
       ...Eye.DEFAULT_CONFIG,
       ...config,
     } as Required<EyeConfig>;
 
-    this.x = x;
-    this.y = y;
-    this.r = r;
-
+    this.center = center;
+    this.r = pupilRadius;
     this.color = color;
     this.lineWidth = lineWidth;
 
-    this.R = Math.round((3 * r) / (1 - Math.cos(Eye.THETA)));
+    this.R = Math.round((3 * this.r) / (1 - Math.cos(Eye.THETA)));
 
     const eyeCornerDist = this.R * Math.sin(Eye.THETA / 2) * Eye.MAGIC_CORNER_FACTOR;
 
     this.startPoint = new Point(-eyeCornerDist, 0);
-    this.arcPoint = new Point(0, r * -2);
+    this.arcPoint = new Point(0, this.r * -2);
     this.endPoint = new Point(eyeCornerDist, 0);
 
     this.blinking = BlinkingModes.IDLE;
@@ -91,7 +91,7 @@ export class Eye {
   setupContext(ctx: CanvasRenderingContext2D) {
     ctx.strokeStyle = this.color;
     ctx.lineWidth = this.lineWidth;
-    ctx.translate(this.x, this.y);
+    ctx.translate(this.center.x, this.center.y);
   }
 
   __drawContourArc(ctx: CanvasRenderingContext2D) {
@@ -113,16 +113,16 @@ export class Eye {
   }
 
   drawPupils(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
-    const { r, startPoint } = this;
+    const { r, center, startPoint } = this;
     const { x, y } = followConfig.point ?? new Point();
 
     ctx.save();
     ctx.resetTransform();
-    ctx.translate(this.x, this.y);
+    ctx.translate(center.x, center.y);
 
-    const mapX = -1 * mapRange(x - this.x, [0, followConfig.windowWidth], [0, startPoint.x]);
+    const mapX = -1 * mapRange(x - center.x, [0, followConfig.windowWidth], [0, startPoint.x]);
 
-    const mapY = mapRange(y - this.y, [0, followConfig.windowHeight], [0, this.r]);
+    const mapY = mapRange(y - center.y, [0, followConfig.windowHeight], [0, this.r]);
 
     // draw concentric circles
     [...Array(Eye.NUM_PUPILS).keys()].forEach((i) => {
@@ -171,10 +171,9 @@ export class Eye {
   }
 
   getPlane(): Plane {
-    const refPoint = new Point(this.x, this.y);
     return new Plane(
-      this.startPoint.translate(refPoint).translateY(-this.r),
-      this.endPoint.translate(refPoint).translateY(this.r),
+      this.startPoint.translate(this.center).translateY(-this.r),
+      this.endPoint.translate(this.center).translateY(this.r),
     );
   }
 
@@ -202,7 +201,7 @@ export class Eye {
   }
 
   move(newPos: Point) {
-    this.x = newPos.x;
-    this.y = newPos.y;
+    this.center.x = newPos.x;
+    this.center.y = newPos.y;
   }
 }
