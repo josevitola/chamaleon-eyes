@@ -8,7 +8,7 @@ const CANVAS_WIDTH = 1000,
 
 const Home = () => {
   const [animation, setAnimation] = useState(true);
-  const [debug, setDebug] = useState(false);
+  const [debug, setDebug] = useState(true);
   const [eyes, setEyes] = useState<Eye[]>([]);
 
   const addToEyes = useCallback(

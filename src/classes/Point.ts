@@ -14,11 +14,23 @@ export class Point {
     this.y = y;
   }
 
-  distanceTo(other = { x: 0, y: 0 }) {
+  distanceTo(other = new Point()) {
     const dx = this.x - other.x,
       dy = this.y - other.y;
 
     return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  translateX(newX: number): Point {
+    return new Point(this.x + newX, this.y);
+  }
+
+  translateY(newY: number): Point {
+    return new Point(this.x, this.y + newY);
+  }
+
+  translate(vector: Point): Point {
+    return new Point(this.x + vector.x, this.y + vector.y);
   }
 
   label(ctx: CanvasRenderingContext2D, config?: PointLabelConfig) {

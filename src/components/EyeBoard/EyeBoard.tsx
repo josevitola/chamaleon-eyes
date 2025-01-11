@@ -43,7 +43,7 @@ export const EyeBoard = ({
           windowWidth: width,
         });
 
-        if (debug) eye.drawDebug(ctx, { mousePos });
+        if (debug) eye.drawDebug(ctx);
       });
 
       if (debug && mousePos) {

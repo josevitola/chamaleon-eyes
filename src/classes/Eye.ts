@@ -170,9 +170,10 @@ export class Eye {
   }
 
   getArea(): Area {
+    const refPoint = new Point(this.x, this.y);
     return new Area(
-      new Point(this.x - this.R, this.y - this.r),
-      new Point(this.x + this.R, this.y + this.r),
+      this.startPoint.translate(refPoint).translateY(-this.r),
+      this.endPoint.translate(refPoint).translateY(this.r),
     );
   }
 
