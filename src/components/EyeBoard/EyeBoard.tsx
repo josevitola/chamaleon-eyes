@@ -1,12 +1,8 @@
-import { useCallback, useState } from "react";
-import { Canvas } from "../Canvas";
-import {
-  DEFAULT_BLINK_PROB,
-  DEFAULT_HEIGHT,
-  DEFAULT_WIDTH,
-} from "./EyeBoard.constants";
-import { Point } from "../../classes/Point";
-import { Eye } from "../../classes/Eye";
+import { useCallback, useState } from 'react';
+import { Canvas } from '../Canvas';
+import { DEFAULT_BLINK_PROB, DEFAULT_HEIGHT, DEFAULT_WIDTH } from './EyeBoard.constants';
+import { Point } from '../../classes/Point';
+import { Eye } from '../../classes/Eye';
 
 interface EyeBoardProps {
   width: number;
@@ -25,13 +21,11 @@ export const EyeBoard = ({
   eyes,
   addToEyes,
 }: EyeBoardProps) => {
-  const [mousePos, setMousePos] = useState<Point>(() =>
-    new Point(width / 2, height / 2)
-  );
+  const [mousePos, setMousePos] = useState<Point>(() => new Point(width / 2, height / 2));
 
   const drawEyes = useCallback(
     (ctx: CanvasRenderingContext2D, frame: number) => {
-      ctx.fillStyle = "#242424";
+      ctx.fillStyle = '#242424';
       ctx.fillRect(0, 0, width, height);
 
       eyes.forEach((eye) => {
@@ -56,7 +50,7 @@ export const EyeBoard = ({
         mousePos.label(ctx);
       }
     },
-    [mousePos, eyes]
+    [mousePos, eyes],
   );
 
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -67,12 +61,15 @@ export const EyeBoard = ({
     setMousePos(p);
   }, []);
 
-  const onClick = useCallback(({ clientX, clientY }: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-    addToEyes(new Eye(clientX, clientY));
-  }, [addToEyes]);
+  const onClick = useCallback(
+    ({ clientX, clientY }: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+      addToEyes(new Eye(clientX, clientY));
+    },
+    [addToEyes],
+  );
 
   return (
-    <div style={{ border: "1px solid darkgray" }}>
+    <div style={{ border: '1px solid darkgray' }}>
       <Canvas
         animated={animated}
         width={width}

@@ -31,11 +31,7 @@ export class Point {
     ctx.beginPath();
     ctx.arc(x, y, Math.floor(fontSize / 2), 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillText(
-      `${label ? `${label}:` : ''}(${~~x}, ${~~y})`,
-      x + fontSize,
-      y + fontSize
-    );
+    ctx.fillText(`${label ? `${label}:` : ''}(${~~x}, ${~~y})`, x + fontSize, y + fontSize);
     ctx.restore();
   }
 }

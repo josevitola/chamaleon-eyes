@@ -1,7 +1,7 @@
-import { DEFAULT_EYE_RADIUS } from "../constants";
-import { arc } from "../utils/draw";
-import { mapRange } from "../utils/mapRange";
-import { Point } from "./Point";
+import { DEFAULT_EYE_RADIUS } from '../constants';
+import { arc } from '../utils/draw';
+import { mapRange } from '../utils/mapRange';
+import { Point } from './Point';
 
 type EyeConfig = {
   lineWidth?: number;
@@ -15,14 +15,14 @@ type EyeFollowConfig = {
 };
 
 enum BlinkingModes {
-  IDLE = "IDLE",
-  OPENING = "OPENING",
-  CLOSING = "CLOSING",
+  IDLE = 'IDLE',
+  OPENING = 'OPENING',
+  CLOSING = 'CLOSING',
 }
 
 enum LidDirections {
-  UP = "UP",
-  DOWN = "DOWN",
+  UP = 'UP',
+  DOWN = 'DOWN',
 }
 
 type EyelidConfig = {
@@ -35,7 +35,7 @@ export class Eye {
   r: number;
   R: number;
 
-  color: string = "orange";
+  color: string = 'orange';
   lineWidth: number;
 
   startPoint: Point;
@@ -50,7 +50,7 @@ export class Eye {
 
   static DEFAULT_CONFIG: EyeConfig = {
     lineWidth: 5,
-    color: "orange",
+    color: 'orange',
   };
 
   static DEFAULT_EYELID_CONFIG: EyelidConfig = {
@@ -62,12 +62,7 @@ export class Eye {
   static MAGIC_EYELID_RADIUS_FACTOR = 0.93;
   static MAGIC_CORNER_FACTOR = 1.05;
 
-  constructor(
-    x: number,
-    y: number,
-    r = DEFAULT_EYE_RADIUS,
-    config = Eye.DEFAULT_CONFIG
-  ) {
+  constructor(x: number, y: number, r = DEFAULT_EYE_RADIUS, config = Eye.DEFAULT_CONFIG) {
     const { color, lineWidth } = {
       ...Eye.DEFAULT_CONFIG,
       ...config,
@@ -82,8 +77,7 @@ export class Eye {
 
     this.R = Math.round((3 * r) / (1 - Math.cos(Eye.THETA)));
 
-    const eyeCornerDist =
-      this.R * Math.sin(Eye.THETA / 2) * Eye.MAGIC_CORNER_FACTOR;
+    const eyeCornerDist = this.R * Math.sin(Eye.THETA / 2) * Eye.MAGIC_CORNER_FACTOR;
 
     this.startPoint = new Point(-eyeCornerDist, 0);
     this.arcPoint = new Point(0, r * -2);
@@ -101,13 +95,7 @@ export class Eye {
   __drawContourArc(ctx: CanvasRenderingContext2D) {
     const { startPoint, arcPoint, endPoint, R } = this;
     ctx.moveTo(startPoint.x, startPoint.y);
-    ctx.arcTo(
-      arcPoint.x,
-      arcPoint.y,
-      endPoint.x,
-      endPoint.y,
-      R * Eye.MAGIC_EYELID_RADIUS_FACTOR
-    );
+    ctx.arcTo(arcPoint.x, arcPoint.y, endPoint.x, endPoint.y, R * Eye.MAGIC_EYELID_RADIUS_FACTOR);
     ctx.lineTo(endPoint.x, endPoint.y);
   }
 
@@ -130,15 +118,9 @@ export class Eye {
     ctx.resetTransform();
     ctx.translate(this.x, this.y);
 
-    const mapX =
-      -1 *
-      mapRange(x - this.x, [0, followConfig.windowWidth], [0, startPoint.x]);
+    const mapX = -1 * mapRange(x - this.x, [0, followConfig.windowWidth], [0, startPoint.x]);
 
-    const mapY = mapRange(
-      y - this.y,
-      [0, followConfig.windowHeight],
-      [0, this.r]
-    );
+    const mapY = mapRange(y - this.y, [0, followConfig.windowHeight], [0, this.r]);
 
     // draw concentric circles
     [...Array(Eye.NUM_PUPILS).keys()].forEach((i) => {
@@ -191,14 +173,9 @@ export class Eye {
     ctx.setLineDash([7, 7]);
     ctx.beginPath();
     ctx.translate(this.x, this.y);
-    ctx.fillStyle = "white";
-    ctx.strokeStyle = "white";
-    ctx.rect(
-      this.startPoint.x,
-      -this.r,
-      this.endPoint.x - this.startPoint.x,
-      2 * this.r
-    );
+    ctx.fillStyle = 'white';
+    ctx.strokeStyle = 'white';
+    ctx.rect(this.startPoint.x, -this.r, this.endPoint.x - this.startPoint.x, 2 * this.r);
     ctx.stroke();
 
     if (ctx.isPointInStroke(mousePos.x, mousePos.y)) {

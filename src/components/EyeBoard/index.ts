@@ -1,1 +1,1 @@
-export { EyeBoard } from "./EyeBoard";
+export { EyeBoard } from './EyeBoard';

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from 'react';
 
 interface CanvasProps extends React.CanvasHTMLAttributes<HTMLCanvasElement> {
   draw: (ctx: CanvasRenderingContext2D, frameCount: number) => void;
@@ -11,7 +11,7 @@ const Canvas = ({ draw, animated, ...rest }: CanvasProps) => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const context = canvas?.getContext("2d") as CanvasRenderingContext2D;
+    const context = canvas?.getContext('2d') as CanvasRenderingContext2D;
 
     let animationFrameId: number;
 

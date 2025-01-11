@@ -1,4 +1,4 @@
-import { Eye } from "../classes/Eye";
+import { Eye } from '../classes/Eye';
 
 interface InitializeEyesParams {
   width: number;
@@ -7,12 +7,7 @@ interface InitializeEyesParams {
   cols: number;
 }
 
-export function initializeEyes({
-  cols,
-  height,
-  rows,
-  width,
-}: InitializeEyesParams) {
+export function initializeEyes({ cols, height, rows, width }: InitializeEyesParams) {
   const eyes: Eye[] = [];
 
   for (let i = 1; i < rows + 1; i++) {
