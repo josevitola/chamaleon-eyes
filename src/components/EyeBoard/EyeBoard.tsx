@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import { Canvas } from '../Canvas';
 import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from './EyeBoard.constants';
 import { Point } from '../../classes/Point';
-import { Eye } from '../../classes/Eye';
+import { ContainLevels, Eye } from '../../classes/Eye';
 import { setCanvasCursor } from '../../utils/draw';
 
 interface EyeBoardProps {
@@ -12,6 +12,12 @@ interface EyeBoardProps {
   animated?: boolean;
   debug?: boolean;
   addToEyes: (newEye: Eye) => void;
+}
+
+const CONTAIN_LEVEL_TO_CURSOR: Record<ContainLevels, string> = {
+  [ContainLevels.INNER]: 'grab',
+  [ContainLevels.MARGIN]: 'col-resize',
+  [ContainLevels.NONE]: 'default',
 }
 
 export const EyeBoard = ({
@@ -27,7 +33,27 @@ export const EyeBoard = ({
   const [currentEye, setCurrentEye] = useState<Eye>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  const updateCurrentEye = useCallback((): Eye | undefined => {
+    // if there is already a current eye, avoid looping through eye list
+    if (currentEye?.contains(mousePos)) return currentEye;
+
+    // else, loop through eye list
+    const foundEye = eyes.find((eye) => eye.contains(mousePos));
+    setCurrentEye(foundEye);
+    return foundEye;
+  }, [mousePos, eyes, currentEye])
+
+  const drawDebugView = useCallback((ctx: CanvasRenderingContext2D) => {
+    const currentEye = updateCurrentEye();
+    currentEye?.debug(ctx);
+    setCanvasCursor(ctx, CONTAIN_LEVEL_TO_CURSOR[currentEye?.contains(mousePos) ?? ContainLevels.NONE])
+  }, [updateCurrentEye, mousePos])
+
   const drawEyes = useCallback((ctx: CanvasRenderingContext2D, frame: number) => {
+    if (debug) {
+      drawDebugView(ctx);
+    }
+
     eyes.forEach((eye) => {
       if (frame > 50) {
         eye.blinkRandomly();
@@ -39,17 +65,6 @@ export const EyeBoard = ({
         windowWidth: width,
       });
     });
-
-    if (debug) {
-      const currentEye = getCurrentEye();
-
-      if (currentEye) {
-        getCurrentEye()?.debug(ctx);
-        setCanvasCursor(ctx, 'move');
-      } else {
-        setCanvasCursor(ctx, 'default');
-      }
-    }
   }, [eyes, mousePos, debug]);
 
   const draw = useCallback(
@@ -66,21 +81,11 @@ export const EyeBoard = ({
     [mousePos, debug, drawEyes],
   );
 
-  const getCurrentEye = useCallback((): Eye | undefined => {
-    // if there is already a current eye, avoid looping through eye list --
-    // check if it still contains the mouse position
-    if (currentEye?.contains(mousePos)) return currentEye;
-
-    // else, loop through eye list
-    const foundEye = eyes.find((eye) => eye.contains(mousePos));
-    setCurrentEye(foundEye);
-    return foundEye;
-  }, [mousePos, eyes, currentEye])
-
   const moveCurrentEye = useCallback((newPos: Point) => {
-    if (isMouseDown) {
+    if (!isMouseDown) return;
+
+    if (currentEye?.contains(newPos))
       currentEye?.move(newPos);
-    }
   }, [isMouseDown, currentEye])
 
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {

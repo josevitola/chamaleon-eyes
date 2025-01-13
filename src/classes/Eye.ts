@@ -1,7 +1,11 @@
+import { Theme } from '../styles';
 import { arc } from '../utils/draw';
 import { mapRange } from '../utils/mapRange';
+import { setAlphaToHex } from '../utils/styles';
 import { Plane } from './Plane';
 import { Point } from './Point';
+
+const { BLACK, WHITE, PINK } = Theme.Colors;
 
 type EyeConfig = Partial<{
   lineWidth: number;
@@ -30,12 +34,18 @@ type EyelidConfig = {
   dir: LidDirections;
 };
 
+export enum ContainLevels {
+  MARGIN = 'MARGIN',
+  INNER = 'INNER',
+  NONE = 'NONE',
+}
+
 export class Eye {
   center: Point;
   r: number;
   R: number;
 
-  color: string = '#d57c7d';
+  color: string;
   lineWidth: number;
 
   startPoint: Point;
@@ -52,7 +62,7 @@ export class Eye {
 
   static DEFAULT_CONFIG: Required<EyeConfig> = {
     lineWidth: 5,
-    color: '#d57c7d',
+    color: PINK,
     pupilRadius: Eye.DEFAULT_PUPIL_RADIUS,
   };
 
@@ -177,13 +187,35 @@ export class Eye {
     );
   }
 
-  contains(point: Point) {
-    return this.getPlane().contains(point);
+  getMargin(): Plane {
+    return this.getPlane().expand(7, 7);
   }
 
-  drawRect(ctx: CanvasRenderingContext2D) {
+  contains(point: Point): ContainLevels {
+    return this.getPlane().contains(point)
+      ? ContainLevels.INNER
+      : this.getMargin().contains(point)
+      ? ContainLevels.MARGIN
+      : ContainLevels.NONE;
+  }
+
+  marginContains(point: Point) {
+    return this.getMargin().contains(point) && !this.contains(point);
+  }
+
+  drawBoundaries(ctx: CanvasRenderingContext2D) {
     ctx.save();
-    this.getPlane().draw(ctx);
+    this.getPlane().draw(ctx, { fillColor: BLACK, strokeColor: WHITE, dashed: true });
+    ctx.restore();
+  }
+
+  drawMargin(ctx: CanvasRenderingContext2D) {
+    ctx.save();
+    this.getMargin().draw(ctx, {
+      fillColor: setAlphaToHex(PINK, 0.3),
+      withStroke: false,
+      dashed: false,
+    });
     ctx.restore();
   }
 
@@ -196,8 +228,8 @@ export class Eye {
   }
 
   debug(ctx: CanvasRenderingContext2D) {
-    this.drawRect(ctx);
-    // new Point(this.x, this.y).label(ctx, { fillColor: 'red', showText: false });
+    this.drawMargin(ctx);
+    this.drawBoundaries(ctx);
   }
 
   move(newPos: Point) {
