@@ -31,6 +31,7 @@ export const EyeBoard = ({
   addToEyes,
 }: EyeBoardProps) => {
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
   const [mousePos, setMousePos] = useState<Point>(() => new Point(width / 2, height / 2));
   const [currentEye, setCurrentEye] = useState<Eye>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -92,6 +93,7 @@ export const EyeBoard = ({
 
     if (!isMouseDown) return;
 
+    setIsDragging(true);
     const containLevel = currentEye?.detailedContains(mousePos);
     if (containLevel === MARGIN_CONTAIN) {
       currentEye?.resize(newMousePos)
@@ -101,23 +103,19 @@ export const EyeBoard = ({
 
   }, [isMouseDown, currentEye, mousePos]);
 
-  const onClick = useCallback(
-    ({ clientX, clientY }: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-      if (!isMouseDown && !currentEye) {
-        const rect = canvasRef.current?.getBoundingClientRect() ?? { left: 0, top: 0 };
-        addToEyes(new Eye(new Point(clientX - rect.left, clientY - rect.top)));
-      }
-    },
-    [addToEyes, currentEye, isMouseDown, canvasRef.current],
-  );
-
   const onMouseDown = useCallback(() => {
     setIsMouseDown(true);
   }, []);
 
-  const onMouseUp = useCallback(() => {
+  const onMouseUp = useCallback(({ clientX, clientY }: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+    if (!isDragging && !currentEye) {
+      const rect = canvasRef.current?.getBoundingClientRect() ?? { left: 0, top: 0 };
+      addToEyes(new Eye(new Point(clientX - rect.left, clientY - rect.top)));
+    }
+
     setIsMouseDown(false);
-  }, []);
+    setIsDragging(false);
+  }, [addToEyes, currentEye, isDragging, canvasRef.current]);
 
   return (
     <div style={{ border: '1px solid darkgray' }}>
@@ -130,7 +128,7 @@ export const EyeBoard = ({
         onMouseMove={onMouseMove}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
-        onClick={onClick}
+      // onClick={onClick}
       />
     </div>
   );
