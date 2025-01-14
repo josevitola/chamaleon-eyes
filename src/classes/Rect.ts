@@ -72,4 +72,24 @@ export class Rect {
   toExpanded(x: number, y: number): Rect {
     return new Rect(this.startPoint.toMoved(-x, -y), this.endPoint.toMoved(x, y));
   }
+
+  moveX(dx: number): Rect {
+    this.startPoint.moveX(dx);
+    this.endPoint.moveX(dx);
+    return this;
+  }
+
+  moveY(dy: number): Rect {
+    this.startPoint.moveY(dy);
+    this.endPoint.moveY(dy);
+    return this;
+  }
+
+  toMoved(dx: number, dy: number): Rect {
+    return this.copy().move(dx, dy);
+  }
+
+  move(dx: number, dy: number): Rect {
+    return this.moveX(dx).moveY(dy);
+  }
 }
