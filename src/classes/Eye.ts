@@ -188,8 +188,8 @@ export class Eye {
 
   getPlane(): Rect {
     return new Rect(
-      this.leftCorner.translate(this.center).translateY(-this.r),
-      this.rightCorner.translate(this.center).translateY(this.r),
+      this.leftCorner.toMoved(this.center).moveY(-this.r),
+      this.rightCorner.toMoved(this.center).moveY(this.r),
     );
   }
 

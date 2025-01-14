@@ -28,16 +28,22 @@ export class Point {
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  translateX(newX: number): Point {
-    return new Point(this.x + newX, this.y);
+  moveX(deltaX: number): Point {
+    this.x += deltaX;
+    return this;
   }
 
-  translateY(newY: number): Point {
-    return new Point(this.x, this.y + newY);
+  moveY(deltaY: number): Point {
+    this.y += deltaY;
+    return this;
   }
 
-  translate(vector: Point): Point {
-    return new Point(this.x + vector.x, this.y + vector.y);
+  toMoved(vector: Point): Point {
+    return this.copy().move(vector);
+  }
+
+  move(deltaVector: Point): Point {
+    return this.moveX(deltaVector.x).moveY(deltaVector.y);
   }
 
   label(ctx: CanvasRenderingContext2D, config?: PointLabelConfig) {
