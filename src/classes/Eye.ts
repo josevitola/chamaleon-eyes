@@ -190,6 +190,10 @@ export class Eye {
     return new Rect(this.center, this.leftCorner.x * 2, this.r * 2);
   }
 
+  getControlBox(): Rect {
+    return new ControlBox(this.center, this.leftCorner.x * 2, this.r * 2);
+  }
+
   getMargin(): Rect {
     return this.getPlane().toExpanded(7, 7);
   }
@@ -219,7 +223,7 @@ export class Eye {
   }
 
   drawControlBox(ctx: CanvasRenderingContext2D) {
-    new ControlBox(this.getPlane()).draw(ctx);
+    this.getControlBox().draw(ctx);
   }
 
   debug(ctx: CanvasRenderingContext2D) {
