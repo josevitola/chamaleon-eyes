@@ -54,4 +54,8 @@ export class Point {
       ctx.fillText(`${label ? `${label}:` : ''}(${~~x}, ${~~y})`, x + fontSize, y + fontSize);
     ctx.restore();
   }
+
+  copy(): Point {
+    return new Point(this.x, this.y);
+  }
 }

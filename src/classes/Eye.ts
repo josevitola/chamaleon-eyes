@@ -1,11 +1,11 @@
 import { Theme } from '../styles';
 import { arc } from '../utils/draw';
 import { mapRange } from '../utils/mapRange';
-import { setAlphaToHex } from '../utils/styles';
+import { ControlBox } from './ControlBox';
 import { Plane } from './Plane';
 import { Point } from './Point';
 
-const { BLACK, WHITE, PINK } = Theme.Colors;
+const { PINK } = Theme.Colors;
 
 type EyeConfig = Partial<{
   lineWidth: number;
@@ -207,22 +207,6 @@ export class Eye {
     return this.getMargin().contains(point) && !this.contains(point);
   }
 
-  drawBoundaries(ctx: CanvasRenderingContext2D) {
-    ctx.save();
-    this.getPlane().draw(ctx, { fillColor: BLACK, strokeColor: WHITE, dashed: true });
-    ctx.restore();
-  }
-
-  drawMargin(ctx: CanvasRenderingContext2D) {
-    ctx.save();
-    this.getMargin().draw(ctx, {
-      fillColor: setAlphaToHex(PINK, 0.3),
-      withStroke: false,
-      dashed: false,
-    });
-    ctx.restore();
-  }
-
   blinkRandomly() {
     if (Math.random() < Eye.DEFAULT_BLINK_PROB) {
       this.startBlinking();
@@ -231,9 +215,12 @@ export class Eye {
     this.updateBlink();
   }
 
+  drawControlBox(ctx: CanvasRenderingContext2D) {
+    new ControlBox(this.getPlane()).draw(ctx);
+  }
+
   debug(ctx: CanvasRenderingContext2D) {
-    this.drawMargin(ctx);
-    this.drawBoundaries(ctx);
+    this.drawControlBox(ctx);
   }
 
   move(newPos: Point) {

@@ -65,11 +65,14 @@ export class Plane {
     this.endPoint.label(ctx);
   }
 
+  copy(): Plane {
+    return new Plane(this.startPoint.copy(), this.endPoint.copy());
+  }
+
   expand(x: number, y: number): Plane {
-    this.startPoint.x -= x;
-    this.startPoint.y -= y;
-    this.endPoint.x += x;
-    this.endPoint.y += y;
-    return this;
+    return new Plane(
+      new Point(this.startPoint.x - x, this.startPoint.y - y),
+      new Point(this.endPoint.x + x, this.endPoint.y + y),
+    );
   }
 }
