@@ -37,7 +37,8 @@ export const EyeBoard = ({
 
   const updateCurrentEye = useCallback((): Eye | undefined => {
     // if there is already a current eye, avoid looping through eye list
-    if (currentEye?.contains(mousePos)) return currentEye;
+    const currentContainmentLevel = currentEye?.contains(mousePos) ?? ContainLevels.NONE;
+    if (currentContainmentLevel === ContainLevels.NONE) return currentEye;
 
     // else, loop through eye list
     const foundEye = eyes.find((eye) => eye.contains(mousePos));
@@ -101,6 +102,7 @@ export const EyeBoard = ({
 
   const onClick = useCallback(
     ({ clientX, clientY }: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+      console.log(currentEye)
       if (!currentEye) {
         const rect = canvasRef.current?.getBoundingClientRect() ?? { left: 0, top: 0 };
         addToEyes(new Eye(new Point(clientX - rect.left, clientY - rect.top)));
