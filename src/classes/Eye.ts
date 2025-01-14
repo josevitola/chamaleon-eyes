@@ -1,7 +1,7 @@
 import { Theme } from '../styles';
 import { arc } from '../utils/draw';
 import { mapRange } from '../utils/mapRange';
-import { ControlBox } from './ControlBox';
+import { ContainLevels, ControlBox } from './ControlBox';
 import { Rect } from './Rect';
 import { Point } from './Point';
 
@@ -33,12 +33,6 @@ enum LidDirections {
 type EyelidConfig = {
   dir: LidDirections;
 };
-
-export enum ContainLevels {
-  MARGIN_CONTAIN = 'MARGIN',
-  INNER_CONTAIN = 'INNER',
-  NO_CONTAIN = 'NONE',
-}
 
 export class Eye {
   center: Point;
@@ -190,7 +184,7 @@ export class Eye {
     return new Rect(this.center, this.leftCorner.x * 2, this.r * 2);
   }
 
-  getControlBox(): Rect {
+  getControlBox(): ControlBox {
     return new ControlBox(this.center, this.leftCorner.x * 2, this.r * 2);
   }
 
@@ -199,19 +193,11 @@ export class Eye {
   }
 
   detailedContains(point: Point): ContainLevels {
-    return this.getPlane().contains(point)
-      ? ContainLevels.INNER_CONTAIN
-      : this.getMargin().contains(point)
-      ? ContainLevels.MARGIN_CONTAIN
-      : ContainLevels.NO_CONTAIN;
+    return this.getControlBox().detailedContains(point);
   }
 
   contains(point: Point): boolean {
-    return this.getMargin().contains(point) || this.getPlane().contains(point);
-  }
-
-  marginContains(point: Point) {
-    return this.getMargin().contains(point) && !this.contains(point);
+    return this.getControlBox().contains(point);
   }
 
   blinkRandomly() {

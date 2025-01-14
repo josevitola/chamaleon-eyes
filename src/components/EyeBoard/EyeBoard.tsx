@@ -1,9 +1,10 @@
 import { useCallback, useRef, useState } from 'react';
 import { Canvas } from '../Canvas';
-import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from './EyeBoard.constants';
+import { CONTAIN_LEVEL_TO_CURSOR, DEFAULT_HEIGHT, DEFAULT_WIDTH } from './EyeBoard.constants';
 import { Point } from '../../classes/Point';
-import { ContainLevels, Eye } from '../../classes/Eye';
+import { Eye } from '../../classes/Eye';
 import { setCanvasCursor } from '../../utils/draw';
+import { ContainLevels } from '../../classes/ControlBox';
 
 const { INNER_CONTAIN, MARGIN_CONTAIN, NO_CONTAIN } = ContainLevels;
 
@@ -14,12 +15,6 @@ interface EyeBoardProps {
   animated?: boolean;
   debug?: boolean;
   addToEyes: (newEye: Eye) => void;
-}
-
-const CONTAIN_LEVEL_TO_CURSOR: Record<ContainLevels, string> = {
-  [INNER_CONTAIN]: 'grab',
-  [MARGIN_CONTAIN]: 'col-resize',
-  [NO_CONTAIN]: 'default',
 }
 
 export const EyeBoard = ({
@@ -68,7 +63,7 @@ export const EyeBoard = ({
         windowWidth: width,
       });
 
-      eye.center.label(ctx)
+      if (debug) eye.center.label(ctx)
     });
   }, [eyes, mousePos, debug]);
 
