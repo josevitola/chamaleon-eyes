@@ -34,9 +34,6 @@ export class Rect {
   }
 
   draw(ctx: CanvasRenderingContext2D, config?: DrawConfig) {
-    const distX = this.getEndPoint().x - this.getStartPoint().x,
-      distY = this.getEndPoint().y - this.getStartPoint().y;
-
     const { dashed, fillColor, strokeColor, withCorners, withStroke } = {
       ...Rect.DEFAULT_DRAW_CONFIG,
       ...config,
@@ -44,7 +41,7 @@ export class Rect {
 
     ctx.beginPath();
     if (dashed) ctx.setLineDash([7, 7]);
-    ctx.rect(this.getStartPoint().x, this.getStartPoint().y, distX, distY);
+    ctx.rect(this.getUpperLeft().x, this.getUpperLeft().y, this.a, this.b);
 
     ctx.strokeStyle = strokeColor;
 
@@ -63,8 +60,8 @@ export class Rect {
   }
 
   drawCorners(ctx: CanvasRenderingContext2D) {
-    this.getStartPoint().label(ctx);
-    this.getEndPoint().label(ctx);
+    this.getUpperLeft().label(ctx);
+    this.getDownRight().label(ctx);
   }
 
   copy(): Rect {
@@ -93,11 +90,11 @@ export class Rect {
     return this.moveX(dx).moveY(dy);
   }
 
-  getStartPoint(): Point {
+  getUpperLeft(): Point {
     return new Point(this.center.x - this.a / 2, this.center.y - this.b / 2);
   }
 
-  getEndPoint(): Point {
+  getDownRight(): Point {
     return new Point(this.center.x + this.a / 2, this.center.y + this.b / 2);
   }
 }
