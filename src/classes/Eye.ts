@@ -187,11 +187,7 @@ export class Eye {
   }
 
   getPlane(): Rect {
-    const { x, y } = this.center;
-    return new Rect(
-      this.leftCorner.toMoved(x, y).moveY(-this.r),
-      this.rightCorner.toMoved(x, y).moveY(this.r),
-    );
+    return new Rect(this.center, this.leftCorner.x * 2, this.r * 2);
   }
 
   getMargin(): Rect {

@@ -9,8 +9,9 @@ type DrawConfig = Partial<{
 }>;
 
 export class Rect {
-  startPoint: Point;
-  endPoint: Point;
+  center: Point;
+  a: number;
+  b: number;
 
   static DEFAULT_DRAW_CONFIG: Required<DrawConfig> = {
     dashed: true,
@@ -20,20 +21,21 @@ export class Rect {
     strokeColor: 'white',
   };
 
-  constructor(startPoint: Point, endPoint: Point) {
-    this.startPoint = startPoint;
-    this.endPoint = endPoint;
+  constructor(center: Point, a: number, b: number) {
+    this.center = center;
+    this.a = Math.abs(a);
+    this.b = Math.abs(b);
   }
 
   contains(point: Point): boolean {
-    const containsX = point.x >= this.startPoint.x && point.x <= this.endPoint.x;
-    const containsY = point.y >= this.startPoint.y && point.y <= this.endPoint.y;
+    const containsX = Math.abs(point.x - this.center.x) <= this.a / 2;
+    const containsY = Math.abs(point.y - this.center.y) <= this.b / 2;
     return containsX && containsY;
   }
 
   draw(ctx: CanvasRenderingContext2D, config?: DrawConfig) {
-    const distX = this.endPoint.x - this.startPoint.x,
-      distY = this.endPoint.y - this.startPoint.y;
+    const distX = this.getEndPoint().x - this.getStartPoint().x,
+      distY = this.getEndPoint().y - this.getStartPoint().y;
 
     const { dashed, fillColor, strokeColor, withCorners, withStroke } = {
       ...Rect.DEFAULT_DRAW_CONFIG,
@@ -42,7 +44,7 @@ export class Rect {
 
     ctx.beginPath();
     if (dashed) ctx.setLineDash([7, 7]);
-    ctx.rect(this.startPoint.x, this.startPoint.y, distX, distY);
+    ctx.rect(this.getStartPoint().x, this.getStartPoint().y, distX, distY);
 
     ctx.strokeStyle = strokeColor;
 
@@ -61,27 +63,25 @@ export class Rect {
   }
 
   drawCorners(ctx: CanvasRenderingContext2D) {
-    this.startPoint.label(ctx);
-    this.endPoint.label(ctx);
+    this.getStartPoint().label(ctx);
+    this.getEndPoint().label(ctx);
   }
 
   copy(): Rect {
-    return new Rect(this.startPoint.copy(), this.endPoint.copy());
+    return new Rect(this.center.copy(), this.a, this.b);
   }
 
-  toExpanded(x: number, y: number): Rect {
-    return new Rect(this.startPoint.toMoved(-x, -y), this.endPoint.toMoved(x, y));
+  toExpanded(da: number, db: number): Rect {
+    return new Rect(this.center, this.a + da, this.b + db);
   }
 
   moveX(dx: number): Rect {
-    this.startPoint.moveX(dx);
-    this.endPoint.moveX(dx);
+    this.center.moveX(dx);
     return this;
   }
 
   moveY(dy: number): Rect {
-    this.startPoint.moveY(dy);
-    this.endPoint.moveY(dy);
+    this.center.moveY(dy);
     return this;
   }
 
@@ -91,5 +91,13 @@ export class Rect {
 
   move(dx: number, dy: number): Rect {
     return this.moveX(dx).moveY(dy);
+  }
+
+  getStartPoint(): Point {
+    return new Point(this.center.x - this.a / 2, this.center.y - this.b / 2);
+  }
+
+  getEndPoint(): Point {
+    return new Point(this.center.x + this.a / 2, this.center.y + this.b / 2);
   }
 }

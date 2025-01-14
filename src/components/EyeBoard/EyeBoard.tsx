@@ -67,6 +67,8 @@ export const EyeBoard = ({
         windowHeight: height,
         windowWidth: width,
       });
+
+      eye.center.label(ctx)
     });
   }, [eyes, mousePos, debug]);
 
@@ -116,6 +118,13 @@ export const EyeBoard = ({
     setIsMouseDown(false);
     setIsDragging(false);
   }, [addToEyes, currentEye, isDragging, canvasRef.current]);
+
+  // useEffect(() => {
+  //   eyes.forEach(eye => {
+  //     console.log(eye.center);
+  //     console.log(eye.getPlane())
+  //   })
+  // }, [eyes])
 
   return (
     <div style={{ border: '1px solid darkgray' }}>
