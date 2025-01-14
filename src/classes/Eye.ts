@@ -35,9 +35,9 @@ type EyelidConfig = {
 };
 
 export enum ContainLevels {
-  MARGIN = 'MARGIN',
-  INNER = 'INNER',
-  NONE = 'NONE',
+  MARGIN_CONTAIN = 'MARGIN',
+  INNER_CONTAIN = 'INNER',
+  NO_CONTAIN = 'NONE',
 }
 
 export class Eye {
@@ -191,12 +191,16 @@ export class Eye {
     return this.getPlane().expand(7, 7);
   }
 
-  contains(point: Point): ContainLevels {
+  detailedContains(point: Point): ContainLevels {
     return this.getPlane().contains(point)
-      ? ContainLevels.INNER
+      ? ContainLevels.INNER_CONTAIN
       : this.getMargin().contains(point)
-      ? ContainLevels.MARGIN
-      : ContainLevels.NONE;
+      ? ContainLevels.MARGIN_CONTAIN
+      : ContainLevels.NO_CONTAIN;
+  }
+
+  contains(point: Point): boolean {
+    return this.getMargin().contains(point) || this.getPlane().contains(point);
   }
 
   marginContains(point: Point) {

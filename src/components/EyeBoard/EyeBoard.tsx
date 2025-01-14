@@ -5,6 +5,8 @@ import { Point } from '../../classes/Point';
 import { ContainLevels, Eye } from '../../classes/Eye';
 import { setCanvasCursor } from '../../utils/draw';
 
+const { INNER_CONTAIN, MARGIN_CONTAIN, NO_CONTAIN } = ContainLevels;
+
 interface EyeBoardProps {
   width: number;
   height: number;
@@ -15,9 +17,9 @@ interface EyeBoardProps {
 }
 
 const CONTAIN_LEVEL_TO_CURSOR: Record<ContainLevels, string> = {
-  [ContainLevels.INNER]: 'grab',
-  [ContainLevels.MARGIN]: 'col-resize',
-  [ContainLevels.NONE]: 'default',
+  [INNER_CONTAIN]: 'grab',
+  [MARGIN_CONTAIN]: 'col-resize',
+  [NO_CONTAIN]: 'default',
 }
 
 export const EyeBoard = ({
@@ -46,7 +48,7 @@ export const EyeBoard = ({
   const drawDebugView = useCallback((ctx: CanvasRenderingContext2D) => {
     const currentEye = updateCurrentEye();
     currentEye?.debug(ctx);
-    setCanvasCursor(ctx, CONTAIN_LEVEL_TO_CURSOR[currentEye?.contains(mousePos) ?? ContainLevels.NONE])
+    setCanvasCursor(ctx, CONTAIN_LEVEL_TO_CURSOR[currentEye?.detailedContains(mousePos) ?? NO_CONTAIN])
   }, [updateCurrentEye, mousePos])
 
   const drawEyes = useCallback((ctx: CanvasRenderingContext2D, frame: number) => {
