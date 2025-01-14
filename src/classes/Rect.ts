@@ -69,10 +69,7 @@ export class Rect {
     return new Rect(this.startPoint.copy(), this.endPoint.copy());
   }
 
-  expand(x: number, y: number): Rect {
-    return new Rect(
-      new Point(this.startPoint.x - x, this.startPoint.y - y),
-      new Point(this.endPoint.x + x, this.endPoint.y + y),
-    );
+  toExpanded(x: number, y: number): Rect {
+    return new Rect(this.startPoint.toMoved(-x, -y), this.endPoint.toMoved(x, y));
   }
 }

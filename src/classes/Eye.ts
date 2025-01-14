@@ -187,14 +187,15 @@ export class Eye {
   }
 
   getPlane(): Rect {
+    const { x, y } = this.center;
     return new Rect(
-      this.leftCorner.toMoved(this.center).moveY(-this.r),
-      this.rightCorner.toMoved(this.center).moveY(this.r),
+      this.leftCorner.toMoved(x, y).moveY(-this.r),
+      this.rightCorner.toMoved(x, y).moveY(this.r),
     );
   }
 
   getMargin(): Rect {
-    return this.getPlane().expand(7, 7);
+    return this.getPlane().toExpanded(7, 7);
   }
 
   detailedContains(point: Point): ContainLevels {

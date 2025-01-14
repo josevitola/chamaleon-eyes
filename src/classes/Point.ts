@@ -38,12 +38,12 @@ export class Point {
     return this;
   }
 
-  toMoved(vector: Point): Point {
-    return this.copy().move(vector);
+  toMoved(deltaX: number, deltaY: number): Point {
+    return this.copy().move(deltaX, deltaY);
   }
 
-  move(deltaVector: Point): Point {
-    return this.moveX(deltaVector.x).moveY(deltaVector.y);
+  move(deltaX: number, deltaY: number): Point {
+    return this.moveX(deltaX).moveY(deltaY);
   }
 
   label(ctx: CanvasRenderingContext2D, config?: PointLabelConfig) {

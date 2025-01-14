@@ -22,7 +22,7 @@ export class ControlBox {
   }
 
   getMargin(): Rect {
-    return this.plane.expand(ControlBox.DEFAULT_MARGIN, ControlBox.DEFAULT_MARGIN);
+    return this.plane.toExpanded(ControlBox.DEFAULT_MARGIN, ControlBox.DEFAULT_MARGIN);
   }
 
   drawMargin(ctx: CanvasRenderingContext2D) {
