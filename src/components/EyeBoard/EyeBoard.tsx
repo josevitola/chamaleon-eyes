@@ -37,8 +37,7 @@ export const EyeBoard = ({
 
   const updateCurrentEye = useCallback((): Eye | undefined => {
     // if there is already a current eye, avoid looping through eye list
-    const currentContainmentLevel = currentEye?.contains(mousePos) ?? ContainLevels.NONE;
-    if (currentContainmentLevel === ContainLevels.NONE) return currentEye;
+    if (currentEye?.contains(mousePos)) return currentEye;
 
     // else, loop through eye list
     const foundEye = eyes.find((eye) => eye.contains(mousePos));
@@ -84,31 +83,32 @@ export const EyeBoard = ({
     [mousePos, debug, drawEyes],
   );
 
-  const moveCurrentEye = useCallback((newPos: Point) => {
-    if (!isMouseDown) return;
-
-    if (currentEye?.contains(newPos))
-      currentEye?.move(newPos);
-  }, [isMouseDown, currentEye])
-
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = e.target as HTMLCanvasElement;
     const rect = canvas.getBoundingClientRect();
-    const p = new Point(e.clientX - rect.left, e.clientY - rect.top);
+    const newMousePos = new Point(e.clientX - rect.left, e.clientY - rect.top);
 
-    setMousePos(p);
-    moveCurrentEye(p);
-  }, [moveCurrentEye]);
+    setMousePos(newMousePos);
+
+    if (!isMouseDown) return;
+
+    const containLevel = currentEye?.detailedContains(mousePos);
+    if (containLevel === MARGIN_CONTAIN) {
+      currentEye?.resize(newMousePos)
+    } else if (containLevel === INNER_CONTAIN) {
+      currentEye?.move(newMousePos);
+    }
+
+  }, [isMouseDown, currentEye, mousePos]);
 
   const onClick = useCallback(
     ({ clientX, clientY }: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-      console.log(currentEye)
-      if (!currentEye) {
+      if (!isMouseDown && !currentEye) {
         const rect = canvasRef.current?.getBoundingClientRect() ?? { left: 0, top: 0 };
         addToEyes(new Eye(new Point(clientX - rect.left, clientY - rect.top)));
       }
     },
-    [addToEyes, currentEye, canvasRef.current],
+    [addToEyes, currentEye, isMouseDown, canvasRef.current],
   );
 
   const onMouseDown = useCallback(() => {

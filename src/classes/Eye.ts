@@ -48,9 +48,9 @@ export class Eye {
   color: string;
   lineWidth: number;
 
-  startPoint: Point;
+  leftCorner: Point;
   arcPoint: Point;
-  endPoint: Point;
+  rightCorner: Point;
 
   blinking: BlinkingModes;
 
@@ -91,9 +91,9 @@ export class Eye {
 
     const eyeCornerDist = this.R * Math.sin(Eye.THETA / 2) * Eye.MAGIC_CORNER_FACTOR;
 
-    this.startPoint = new Point(-eyeCornerDist, 0);
+    this.leftCorner = new Point(-eyeCornerDist, 0);
     this.arcPoint = new Point(0, this.r * -2);
-    this.endPoint = new Point(eyeCornerDist, 0);
+    this.rightCorner = new Point(eyeCornerDist, 0);
 
     this.blinking = BlinkingModes.IDLE;
   }
@@ -105,10 +105,16 @@ export class Eye {
   }
 
   __drawContourArc(ctx: CanvasRenderingContext2D) {
-    const { startPoint, arcPoint, endPoint, R } = this;
-    ctx.moveTo(startPoint.x, startPoint.y);
-    ctx.arcTo(arcPoint.x, arcPoint.y, endPoint.x, endPoint.y, R * Eye.MAGIC_EYELID_RADIUS_FACTOR);
-    ctx.lineTo(endPoint.x, endPoint.y);
+    const { leftCorner, arcPoint, rightCorner, R } = this;
+    ctx.moveTo(leftCorner.x, leftCorner.y);
+    ctx.arcTo(
+      arcPoint.x,
+      arcPoint.y,
+      rightCorner.x,
+      rightCorner.y,
+      R * Eye.MAGIC_EYELID_RADIUS_FACTOR,
+    );
+    ctx.lineTo(rightCorner.x, rightCorner.y);
   }
 
   drawContour(ctx: CanvasRenderingContext2D) {
@@ -123,14 +129,14 @@ export class Eye {
   }
 
   drawPupils(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
-    const { r, center, startPoint } = this;
+    const { r, center, leftCorner } = this;
     const { x, y } = followConfig.point ?? new Point();
 
     ctx.save();
     ctx.resetTransform();
     ctx.translate(center.x, center.y);
 
-    const mapX = -1 * mapRange(x - center.x, [0, followConfig.windowWidth], [0, startPoint.x]);
+    const mapX = -1 * mapRange(x - center.x, [0, followConfig.windowWidth], [0, leftCorner.x]);
 
     const mapY = mapRange(y - center.y, [0, followConfig.windowHeight], [0, this.r]);
 
@@ -182,8 +188,8 @@ export class Eye {
 
   getPlane(): Plane {
     return new Plane(
-      this.startPoint.translate(this.center).translateY(-this.r),
-      this.endPoint.translate(this.center).translateY(this.r),
+      this.leftCorner.translate(this.center).translateY(-this.r),
+      this.rightCorner.translate(this.center).translateY(this.r),
     );
   }
 
@@ -226,5 +232,9 @@ export class Eye {
   move(newPos: Point) {
     this.center.x = newPos.x;
     this.center.y = newPos.y;
+  }
+
+  resize(newPos: Point) {
+    console.log(newPos);
   }
 }
