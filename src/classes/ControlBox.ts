@@ -1,15 +1,15 @@
 import { Theme } from '../styles';
 import { setAlphaToHex } from '../utils/styles';
-import { Plane } from './Plane';
+import { Rect } from './Rect';
 
 const { BLACK, WHITE, PINK } = Theme.Colors;
 
 export class ControlBox {
-  plane: Plane;
+  plane: Rect;
 
   static DEFAULT_MARGIN = 10;
 
-  constructor(plane: Plane) {
+  constructor(plane: Rect) {
     this.plane = plane;
   }
 
@@ -21,7 +21,7 @@ export class ControlBox {
     this.plane.drawCorners(ctx);
   }
 
-  getMargin(): Plane {
+  getMargin(): Rect {
     return this.plane.expand(ControlBox.DEFAULT_MARGIN, ControlBox.DEFAULT_MARGIN);
   }
 

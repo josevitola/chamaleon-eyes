@@ -8,7 +8,7 @@ type DrawConfig = Partial<{
   withStroke: boolean;
 }>;
 
-export class Plane {
+export class Rect {
   startPoint: Point;
   endPoint: Point;
 
@@ -36,7 +36,7 @@ export class Plane {
       distY = this.endPoint.y - this.startPoint.y;
 
     const { dashed, fillColor, strokeColor, withCorners, withStroke } = {
-      ...Plane.DEFAULT_DRAW_CONFIG,
+      ...Rect.DEFAULT_DRAW_CONFIG,
       ...config,
     };
 
@@ -65,12 +65,12 @@ export class Plane {
     this.endPoint.label(ctx);
   }
 
-  copy(): Plane {
-    return new Plane(this.startPoint.copy(), this.endPoint.copy());
+  copy(): Rect {
+    return new Rect(this.startPoint.copy(), this.endPoint.copy());
   }
 
-  expand(x: number, y: number): Plane {
-    return new Plane(
+  expand(x: number, y: number): Rect {
+    return new Rect(
       new Point(this.startPoint.x - x, this.startPoint.y - y),
       new Point(this.endPoint.x + x, this.endPoint.y + y),
     );

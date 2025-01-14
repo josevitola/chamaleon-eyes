@@ -2,7 +2,7 @@ import { Theme } from '../styles';
 import { arc } from '../utils/draw';
 import { mapRange } from '../utils/mapRange';
 import { ControlBox } from './ControlBox';
-import { Plane } from './Plane';
+import { Rect } from './Rect';
 import { Point } from './Point';
 
 const { PINK } = Theme.Colors;
@@ -186,14 +186,14 @@ export class Eye {
     ctx.restore();
   }
 
-  getPlane(): Plane {
-    return new Plane(
+  getPlane(): Rect {
+    return new Rect(
       this.leftCorner.translate(this.center).translateY(-this.r),
       this.rightCorner.translate(this.center).translateY(this.r),
     );
   }
 
-  getMargin(): Plane {
+  getMargin(): Rect {
     return this.getPlane().expand(7, 7);
   }
 
