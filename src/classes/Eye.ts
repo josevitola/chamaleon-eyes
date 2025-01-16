@@ -107,46 +107,14 @@ export class Eye {
     ctx.translate(this.center.x, this.center.y);
   }
 
-  __drawContourArc(ctx: CanvasRenderingContext2D) {
-    const { arcPoint } = this;
-    const eyelidRadius = this.getEyelidRadius();
-    const dist = Eye.distanceToEyeCorner(this.getEyelidRadius());
-    ctx.moveTo(-dist, 0);
-    ctx.arcTo(arcPoint.x, arcPoint.y, dist, 0, eyelidRadius * Eye.MAGIC_EYELID_RADIUS_FACTOR);
-    ctx.lineTo(dist, 0);
-  }
-
-  drawContour(ctx: CanvasRenderingContext2D) {
-    ctx.beginPath();
-    this.__drawContourArc(ctx);
-    ctx.rotate(Math.PI);
-    this.__drawContourArc(ctx);
-    ctx.clip();
-    ctx.stroke();
-    ctx.closePath();
-    ctx.rotate(Math.PI);
-  }
-
-  drawPupils(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
-    const { pupilRadius: r, center } = this;
-    const { x, y } = followConfig.point ?? new Point();
-    const eyelidRadius = this.getEyelidRadius();
-    const dist = Eye.distanceToEyeCorner(eyelidRadius);
-
+  draw(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
     ctx.save();
-    ctx.resetTransform();
-    ctx.translate(center.x, center.y);
 
-    const mapX = -1 * mapRange(x - center.x, [0, followConfig.windowWidth], [0, -dist]),
-      mapY = mapRange(y - center.y, [0, followConfig.windowHeight], [0, this.pupilRadius]);
+    this.setupContext(ctx);
 
-    // draw concentric circles
-    [...Array(Eye.NUM_PUPILS).keys()].forEach((i) => {
-      const logFactor = Math.log(i + 2) / Math.log(Eye.NUM_PUPILS + 1);
-      arc(ctx, mapX, mapY, r * logFactor, 0, Math.PI * 2);
-    });
+    this._drawContour(ctx);
+    this._drawPupils(ctx, followConfig);
 
-    arc(ctx, mapX, mapY, r * 0.1, 0, 2 * Math.PI);
     ctx.restore();
   }
 
@@ -168,22 +136,6 @@ export class Eye {
       if (Math.abs(y) <= r * 2) this.arcPoint.y -= Eye.BLINK_SPEED;
       else this.blinking = IDLE;
     }
-  }
-
-  draw(ctx: CanvasRenderingContext2D, followConfig?: EyeFollowConfig) {
-    ctx.save();
-
-    this.setupContext(ctx);
-
-    this.drawContour(ctx);
-    this.drawPupils(ctx, {
-      point: new Point(0, 0),
-      windowHeight: 2,
-      windowWidth: 2,
-      ...followConfig,
-    });
-
-    ctx.restore();
   }
 
   detailedContains(point: Point): ContainLevels {
@@ -218,5 +170,59 @@ export class Eye {
   resize(newPos: Point) {
     const dx = Math.abs(newPos.x - this.center.x);
     this.controlBox.changeWidth(dx * 2);
+  }
+
+  _drawEye(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
+    ctx.save();
+
+    this.setupContext(ctx);
+
+    this._drawContour(ctx);
+    this._drawPupils(ctx, followConfig);
+
+    ctx.restore();
+  }
+
+  _drawPupils(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
+    const { pupilRadius: r, center } = this;
+    const { x, y } = followConfig.point ?? new Point();
+    const eyelidRadius = this.getEyelidRadius();
+    const dist = Eye.distanceToEyeCorner(eyelidRadius);
+
+    ctx.save();
+    ctx.resetTransform();
+    ctx.translate(center.x, center.y);
+
+    const mapX = -1 * mapRange(x - center.x, [0, followConfig.windowWidth], [0, -dist]),
+      mapY = mapRange(y - center.y, [0, followConfig.windowHeight], [0, this.pupilRadius]);
+
+    // draw concentric circles
+    [...Array(Eye.NUM_PUPILS).keys()].forEach((i) => {
+      const logFactor = Math.log(i + 2) / Math.log(Eye.NUM_PUPILS + 1);
+      arc(ctx, mapX, mapY, r * logFactor, 0, Math.PI * 2);
+    });
+
+    arc(ctx, mapX, mapY, r * 0.1, 0, 2 * Math.PI);
+    ctx.restore();
+  }
+
+  _drawContourArc(ctx: CanvasRenderingContext2D) {
+    const { arcPoint } = this;
+    const eyelidRadius = this.getEyelidRadius();
+    const dist = Eye.distanceToEyeCorner(this.getEyelidRadius());
+    ctx.moveTo(-dist, 0);
+    ctx.arcTo(arcPoint.x, arcPoint.y, dist, 0, eyelidRadius * Eye.MAGIC_EYELID_RADIUS_FACTOR);
+    ctx.lineTo(dist, 0);
+  }
+
+  _drawContour(ctx: CanvasRenderingContext2D) {
+    ctx.beginPath();
+    this._drawContourArc(ctx);
+    ctx.rotate(Math.PI);
+    this._drawContourArc(ctx);
+    ctx.clip();
+    ctx.stroke();
+    ctx.closePath();
+    ctx.rotate(Math.PI);
   }
 }

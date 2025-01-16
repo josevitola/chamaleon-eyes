@@ -43,7 +43,7 @@ export const EyeBoard = ({
 
   const drawDebugView = useCallback((ctx: CanvasRenderingContext2D) => {
     const currentEye = updateCurrentEye();
-    currentEye?.debug(ctx);
+    currentEye?.drawControlBox(ctx);
     setCanvasCursor(ctx, CONTAIN_LEVEL_TO_CURSOR[currentEye?.detailedContains(mousePos) ?? NO_CONTAIN])
   }, [updateCurrentEye, mousePos])
 
