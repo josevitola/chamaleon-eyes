@@ -97,4 +97,9 @@ export class Rect {
   getDownRight(): Point {
     return new Point(this.center.x + this.a / 2, this.center.y + this.b / 2);
   }
+
+  changeWidth(newA: number): Rect {
+    this.a = newA;
+    return this;
+  }
 }

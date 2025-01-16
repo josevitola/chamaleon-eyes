@@ -36,7 +36,6 @@ type EyelidConfig = {
 export class Eye {
   center: Point;
   pupilRadius: number;
-  eyelidRadius: number;
   arcPoint: Point;
   controlBox: ControlBox;
 
@@ -77,10 +76,13 @@ export class Eye {
     this.color = color;
     this.lineWidth = lineWidth;
 
-    this.eyelidRadius = Eye.calculateEyelidRadius(this.pupilRadius);
     this.arcPoint = new Point(0, this.pupilRadius * -2);
     this.blinking = BlinkingModes.IDLE;
-    this.controlBox = Eye.calculateControlBox(this.center, this.eyelidRadius, this.pupilRadius);
+    this.controlBox = Eye.calculateControlBox(
+      this.center,
+      this.getEyelidRadius(),
+      this.pupilRadius,
+    );
   }
 
   static calculateEyelidRadius(pupilRadius: number) {
@@ -95,6 +97,10 @@ export class Eye {
     return new ControlBox(center, Eye.distanceToEyeCorner(eyelidRadius) * 2, pupilRadius * 2);
   }
 
+  getEyelidRadius() {
+    return Math.round((3 * this.pupilRadius) / (1 - Math.cos(Eye.THETA)));
+  }
+
   setupContext(ctx: CanvasRenderingContext2D) {
     ctx.strokeStyle = this.color;
     ctx.lineWidth = this.lineWidth;
@@ -102,8 +108,9 @@ export class Eye {
   }
 
   __drawContourArc(ctx: CanvasRenderingContext2D) {
-    const { arcPoint, eyelidRadius } = this;
-    const dist = Eye.distanceToEyeCorner(eyelidRadius);
+    const { arcPoint } = this;
+    const eyelidRadius = this.getEyelidRadius();
+    const dist = Eye.distanceToEyeCorner(this.getEyelidRadius());
     ctx.moveTo(-dist, 0);
     ctx.arcTo(arcPoint.x, arcPoint.y, dist, 0, eyelidRadius * Eye.MAGIC_EYELID_RADIUS_FACTOR);
     ctx.lineTo(dist, 0);
@@ -121,8 +128,9 @@ export class Eye {
   }
 
   drawPupils(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
-    const { pupilRadius: r, center, eyelidRadius } = this;
+    const { pupilRadius: r, center } = this;
     const { x, y } = followConfig.point ?? new Point();
+    const eyelidRadius = this.getEyelidRadius();
     const dist = Eye.distanceToEyeCorner(eyelidRadius);
 
     ctx.save();
@@ -208,6 +216,7 @@ export class Eye {
   }
 
   resize(newPos: Point) {
-    console.log(newPos);
+    const dx = Math.abs(newPos.x - this.center.x);
+    this.controlBox.changeWidth(dx * 2);
   }
 }
