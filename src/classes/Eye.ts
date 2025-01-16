@@ -2,7 +2,6 @@ import { Theme } from '../styles';
 import { arc } from '../utils/draw';
 import { mapRange } from '../utils/mapRange';
 import { ContainLevels, ControlBox } from './ControlBox';
-import { Rect } from './Rect';
 import { Point } from './Point';
 
 const { PINK } = Theme.Colors;
@@ -36,21 +35,18 @@ type EyelidConfig = {
 
 export class Eye {
   center: Point;
-  r: number;
-  R: number;
+  pupilRadius: number;
+  eyelidRadius: number;
+  arcPoint: Point;
+  controlBox: ControlBox;
 
   color: string;
   lineWidth: number;
-
-  leftCorner: Point;
-  arcPoint: Point;
-  rightCorner: Point;
-
   blinking: BlinkingModes;
 
   static THETA = Math.PI / 2;
   static BLINK_SPEED = 2;
-  static NUM_PUPILS = 3;
+  static NUM_PUPILS = 4;
 
   static DEFAULT_PUPIL_RADIUS = 30;
 
@@ -77,19 +73,26 @@ export class Eye {
     } as Required<EyeConfig>;
 
     this.center = center;
-    this.r = pupilRadius;
+    this.pupilRadius = pupilRadius;
     this.color = color;
     this.lineWidth = lineWidth;
 
-    this.R = Math.round((3 * this.r) / (1 - Math.cos(Eye.THETA)));
-
-    const eyeCornerDist = this.R * Math.sin(Eye.THETA / 2) * Eye.MAGIC_CORNER_FACTOR;
-
-    this.leftCorner = new Point(-eyeCornerDist, 0);
-    this.arcPoint = new Point(0, this.r * -2);
-    this.rightCorner = new Point(eyeCornerDist, 0);
-
+    this.eyelidRadius = Eye.calculateEyelidRadius(this.pupilRadius);
+    this.arcPoint = new Point(0, this.pupilRadius * -2);
     this.blinking = BlinkingModes.IDLE;
+    this.controlBox = Eye.calculateControlBox(this.center, this.eyelidRadius, this.pupilRadius);
+  }
+
+  static calculateEyelidRadius(pupilRadius: number) {
+    return Math.round((3 * pupilRadius) / (1 - Math.cos(Eye.THETA)));
+  }
+
+  static distanceToEyeCorner(eyelidRadius: number): number {
+    return eyelidRadius * Math.sin(Eye.THETA / 2) * Eye.MAGIC_CORNER_FACTOR;
+  }
+
+  static calculateControlBox(center: Point, eyelidRadius: number, pupilRadius: number): ControlBox {
+    return new ControlBox(center, Eye.distanceToEyeCorner(eyelidRadius) * 2, pupilRadius * 2);
   }
 
   setupContext(ctx: CanvasRenderingContext2D) {
@@ -99,16 +102,11 @@ export class Eye {
   }
 
   __drawContourArc(ctx: CanvasRenderingContext2D) {
-    const { leftCorner, arcPoint, rightCorner, R } = this;
-    ctx.moveTo(leftCorner.x, leftCorner.y);
-    ctx.arcTo(
-      arcPoint.x,
-      arcPoint.y,
-      rightCorner.x,
-      rightCorner.y,
-      R * Eye.MAGIC_EYELID_RADIUS_FACTOR,
-    );
-    ctx.lineTo(rightCorner.x, rightCorner.y);
+    const { arcPoint, eyelidRadius } = this;
+    const dist = Eye.distanceToEyeCorner(eyelidRadius);
+    ctx.moveTo(-dist, 0);
+    ctx.arcTo(arcPoint.x, arcPoint.y, dist, 0, eyelidRadius * Eye.MAGIC_EYELID_RADIUS_FACTOR);
+    ctx.lineTo(dist, 0);
   }
 
   drawContour(ctx: CanvasRenderingContext2D) {
@@ -123,16 +121,16 @@ export class Eye {
   }
 
   drawPupils(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
-    const { r, center, leftCorner } = this;
+    const { pupilRadius: r, center, eyelidRadius } = this;
     const { x, y } = followConfig.point ?? new Point();
+    const dist = Eye.distanceToEyeCorner(eyelidRadius);
 
     ctx.save();
     ctx.resetTransform();
     ctx.translate(center.x, center.y);
 
-    const mapX = -1 * mapRange(x - center.x, [0, followConfig.windowWidth], [0, leftCorner.x]);
-
-    const mapY = mapRange(y - center.y, [0, followConfig.windowHeight], [0, this.r]);
+    const mapX = -1 * mapRange(x - center.x, [0, followConfig.windowWidth], [0, -dist]),
+      mapY = mapRange(y - center.y, [0, followConfig.windowHeight], [0, this.pupilRadius]);
 
     // draw concentric circles
     [...Array(Eye.NUM_PUPILS).keys()].forEach((i) => {
@@ -151,7 +149,7 @@ export class Eye {
   }
 
   updateBlink() {
-    const { r } = this;
+    const { pupilRadius: r } = this;
     const { y } = this.arcPoint;
     const { CLOSING, IDLE, OPENING } = BlinkingModes;
 
@@ -180,24 +178,12 @@ export class Eye {
     ctx.restore();
   }
 
-  getPlane(): Rect {
-    return new Rect(this.center, this.leftCorner.x * 2, this.r * 2);
-  }
-
-  getControlBox(): ControlBox {
-    return new ControlBox(this.center, this.leftCorner.x * 2, this.r * 2);
-  }
-
-  getMargin(): Rect {
-    return this.getPlane().toExpanded(7, 7);
-  }
-
   detailedContains(point: Point): ContainLevels {
-    return this.getControlBox().detailedContains(point);
+    return this.controlBox.detailedContains(point);
   }
 
   contains(point: Point): boolean {
-    return this.getControlBox().contains(point);
+    return this.controlBox.contains(point);
   }
 
   blinkRandomly() {
@@ -209,7 +195,7 @@ export class Eye {
   }
 
   drawControlBox(ctx: CanvasRenderingContext2D) {
-    this.getControlBox().draw(ctx);
+    this.controlBox.draw(ctx);
   }
 
   debug(ctx: CanvasRenderingContext2D) {
