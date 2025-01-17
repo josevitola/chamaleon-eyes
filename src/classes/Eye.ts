@@ -179,9 +179,13 @@ export class Eye {
   }
 
   resize(newPos: Point) {
-    const dx = newPos.x - this.center.x;
-    this.controlBox.changeWidth(dx * 2);
-    this.pupilRadius += newPos.distanceTo(this.center) - Eye.distanceToEyeCorner(this.pupilRadius);
+    const dx = newPos.x - this.center.x,
+      newWidth = dx * 2;
+
+    const proportion = newPos.x / (this.center.x + Eye.distanceToEyeCorner(this.pupilRadius));
+    this.controlBox.changeWidth(newWidth);
+    this.controlBox.scaleY(proportion);
+    this.pupilRadius *= proportion;
   }
 
   handleMouseDown(mousePos: Point) {

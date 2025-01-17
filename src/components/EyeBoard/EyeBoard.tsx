@@ -3,6 +3,7 @@ import { Canvas } from '../Canvas';
 import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from './EyeBoard.constants';
 import { Point } from '../../classes/Point';
 import { Eye } from '../../classes/Eye';
+import { setCanvasCursor } from '../../utils/draw';
 
 interface EyeBoardProps {
   width: number;
@@ -46,7 +47,10 @@ export const EyeBoard = ({
         debug
       });
 
-      calculateCurrentEye()?.handleHover(ctx, mousePos);
+      const newCurrentEye = calculateCurrentEye();
+
+      if (newCurrentEye) newCurrentEye.handleHover(ctx, mousePos);
+      else setCanvasCursor(ctx, 'default')
     });
   }, [eyes, mousePos, debug, calculateCurrentEye]);
 

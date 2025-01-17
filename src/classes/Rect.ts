@@ -102,4 +102,8 @@ export class Rect {
     this.a = newA;
     return this;
   }
+
+  scaleY(factor: number) {
+    this.b *= factor;
+  }
 }
