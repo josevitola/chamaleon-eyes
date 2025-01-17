@@ -95,23 +95,21 @@ export class Eye {
 
     this.arcPoint = new Point(0, this.pupilRadius * -2);
     this.blinking = BlinkingModes.IDLE;
-    this.controlBox = Eye.calculateControlBox(
-      this.center,
-      this.getEyelidRadius(),
-      this.pupilRadius,
-    );
+    this.controlBox = Eye.calculateControlBox(this.center, this.pupilRadius);
   }
 
-  static calculateEyelidRadius(pupilRadius: number) {
+  static _calculateEyelidRadius(pupilRadius: number) {
     return Math.round((3 * pupilRadius) / (1 - Math.cos(Eye.THETA)));
   }
 
-  static distanceToEyeCorner(eyelidRadius: number): number {
-    return eyelidRadius * Math.sin(Eye.THETA / 2) * Eye.MAGIC_CORNER_FACTOR;
+  static distanceToEyeCorner(pupilRadius: number): number {
+    return (
+      Eye._calculateEyelidRadius(pupilRadius) * Math.sin(Eye.THETA / 2) * Eye.MAGIC_CORNER_FACTOR
+    );
   }
 
-  static calculateControlBox(center: Point, eyelidRadius: number, pupilRadius: number): ControlBox {
-    return new ControlBox(center, Eye.distanceToEyeCorner(eyelidRadius) * 2, pupilRadius * 2);
+  static calculateControlBox(center: Point, pupilRadius: number): ControlBox {
+    return new ControlBox(center, Eye.distanceToEyeCorner(pupilRadius) * 2, pupilRadius * 2);
   }
 
   getEyelidRadius() {
@@ -183,6 +181,7 @@ export class Eye {
   resize(newPos: Point) {
     const dx = newPos.x - this.center.x;
     this.controlBox.changeWidth(dx * 2);
+    this.pupilRadius += newPos.distanceTo(this.center) - Eye.distanceToEyeCorner(this.pupilRadius);
   }
 
   handleMouseDown(mousePos: Point) {
@@ -223,8 +222,7 @@ export class Eye {
   _drawPupils(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
     const { pupilRadius: r, center } = this;
     const { x, y } = followConfig.point ?? new Point();
-    const eyelidRadius = this.getEyelidRadius();
-    const dist = Eye.distanceToEyeCorner(eyelidRadius);
+    const dist = Eye.distanceToEyeCorner(this.pupilRadius);
 
     ctx.save();
     ctx.resetTransform();
@@ -246,7 +244,7 @@ export class Eye {
   _drawContourArc(ctx: CanvasRenderingContext2D) {
     const { arcPoint } = this;
     const eyelidRadius = this.getEyelidRadius();
-    const dist = Eye.distanceToEyeCorner(this.getEyelidRadius());
+    const dist = Eye.distanceToEyeCorner(this.pupilRadius);
     ctx.moveTo(-dist, 0);
     ctx.arcTo(arcPoint.x, arcPoint.y, dist, 0, eyelidRadius * Eye.MAGIC_EYELID_RADIUS_FACTOR);
     ctx.lineTo(dist, 0);
