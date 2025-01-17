@@ -1,12 +1,8 @@
 import { useCallback, useRef, useState } from 'react';
 import { Canvas } from '../Canvas';
-import { CONTAIN_LEVEL_TO_CURSOR, DEFAULT_HEIGHT, DEFAULT_WIDTH } from './EyeBoard.constants';
+import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from './EyeBoard.constants';
 import { Point } from '../../classes/Point';
 import { Eye } from '../../classes/Eye';
-import { setCanvasCursor } from '../../utils/draw';
-import { ContainLevels } from '../../classes/ControlBox';
-
-const { NO_CONTAIN } = ContainLevels;
 
 interface EyeBoardProps {
   width: number;
@@ -21,7 +17,7 @@ export const EyeBoard = ({
   animated,
   height = DEFAULT_HEIGHT,
   width = DEFAULT_WIDTH,
-  debug,
+  debug = false,
   eyes,
   addToEyes,
 }: EyeBoardProps) => {
@@ -31,26 +27,13 @@ export const EyeBoard = ({
   const [currentEye, setCurrentEye] = useState<Eye>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const calculateCurrentEye = useCallback(() => {
-    // if there is already a current eye, avoid looping through eye list
-    if (currentEye?.contains(mousePos)) return currentEye;
-
-    // else, loop through eye list
-    const foundEye = eyes.find((eye) => eye.contains(mousePos));
-    setCurrentEye(foundEye);
+  const calculateCurrentEye = useCallback((): Eye | undefined => {
+    const newEye = currentEye?.contains(mousePos) ? currentEye : eyes.find((eye) => eye.contains(mousePos));
+    setCurrentEye(newEye);
+    return newEye;
   }, [mousePos, eyes, currentEye])
 
-  const drawDebugView = useCallback((ctx: CanvasRenderingContext2D) => {
-    calculateCurrentEye();
-    currentEye?.drawControlBox(ctx);
-    setCanvasCursor(ctx, CONTAIN_LEVEL_TO_CURSOR[currentEye?.detailedContains(mousePos) ?? NO_CONTAIN])
-  }, [calculateCurrentEye, mousePos, currentEye])
-
   const drawEyes = useCallback((ctx: CanvasRenderingContext2D, frame: number) => {
-    if (debug) {
-      drawDebugView(ctx);
-    }
-
     eyes.forEach((eye) => {
       if (frame > 50) {
         eye.blinkRandomly();
@@ -60,9 +43,12 @@ export const EyeBoard = ({
         point: mousePos,
         windowHeight: height,
         windowWidth: width,
+        debug
       });
+
+      calculateCurrentEye()?.handleHover(ctx, mousePos);
     });
-  }, [eyes, mousePos, debug]);
+  }, [eyes, mousePos, debug, calculateCurrentEye]);
 
   const draw = useCallback(
     (ctx: CanvasRenderingContext2D, frame: number) => {

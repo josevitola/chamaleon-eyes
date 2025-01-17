@@ -1,5 +1,6 @@
+import { CONTAIN_LEVEL_TO_CURSOR } from '../constants';
 import { Theme } from '../styles';
-import { arc } from '../utils/draw';
+import { arc, setCanvasCursor } from '../utils/draw';
 import { mapRange } from '../utils/mapRange';
 import { ContainLevels, ControlBox } from './ControlBox';
 import { Point } from './Point';
@@ -13,7 +14,7 @@ type EyeConfig = Partial<{
 }>;
 
 type EyeFollowConfig = {
-  point: Point | undefined;
+  point: Point;
   windowWidth: number;
   windowHeight: number;
 };
@@ -38,6 +39,8 @@ enum EyeActions {
   MOVING = 'MOVING',
   NONE = 'RESIZING',
 }
+
+type DrawConfig = EyeFollowConfig & { debug: boolean };
 
 const CONTAIN_TO_ACTION_DICT: Record<ContainLevels, EyeActions> = {
   [ContainLevels.INNER_CONTAIN]: EyeActions.MOVING,
@@ -121,15 +124,11 @@ export class Eye {
     ctx.translate(this.center.x, this.center.y);
   }
 
-  draw(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
-    ctx.save();
-
-    this.setupContext(ctx);
-
-    this._drawContour(ctx);
-    this._drawPupils(ctx, followConfig);
-
-    ctx.restore();
+  draw(ctx: CanvasRenderingContext2D, config: DrawConfig) {
+    if (config.debug) {
+      this.drawControlBox(ctx);
+    }
+    this._drawEye(ctx, config);
   }
 
   startBlinking() {
@@ -201,6 +200,13 @@ export class Eye {
 
   handleMouseUp() {
     this.action = EyeActions.NONE;
+  }
+
+  handleHover(ctx: CanvasRenderingContext2D, mousePos: Point) {
+    setCanvasCursor(
+      ctx,
+      CONTAIN_LEVEL_TO_CURSOR[this.detailedContains(mousePos) ?? ContainLevels.NO_CONTAIN],
+    );
   }
 
   _drawEye(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
