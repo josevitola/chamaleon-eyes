@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import { CONTAIN_LEVEL_TO_CURSOR } from '../constants';
 import { Theme } from '../styles';
 import { arc, setCanvasCursor } from '../utils/draw';
@@ -54,6 +55,7 @@ export class Eye {
   arcPoint: Point;
   controlBox: ControlBox;
   action: EyeActions;
+  id: string;
 
   color: string;
   lineWidth: number;
@@ -92,6 +94,7 @@ export class Eye {
     this.color = color;
     this.lineWidth = lineWidth;
     this.action = EyeActions.NONE;
+    this.id = nanoid();
 
     this.arcPoint = new Point(0, this.pupilRadius * -2);
     this.blinking = BlinkingModes.IDLE;

@@ -11,11 +11,9 @@ const Home = () => {
   const [debug, setDebug] = useState(true);
   const [eyes, setEyes] = useState<Eye[]>([]);
 
-  const addToEyes = useCallback(
-    (newEye: Eye) => {
-      setEyes([...eyes, newEye]);
-    },
-    [eyes],
+  const updateEyes = useCallback(
+    (newEyes: Eye[]) => { setEyes([...newEyes]); },
+    [],
   );
 
   const toggleAnimation = useCallback(() => {
@@ -38,7 +36,7 @@ const Home = () => {
         height={CANVAS_HEIGHT}
         eyes={eyes}
         debug={debug}
-        addToEyes={addToEyes}
+        updateEyeList={updateEyes}
       />
 
       <h1>Camaleones</h1>

@@ -11,7 +11,7 @@ interface EyeBoardProps {
   eyes: Eye[];
   animated?: boolean;
   debug?: boolean;
-  addToEyes: (newEye: Eye) => void;
+  updateEyeList: (newEyes: Eye[]) => void;
 }
 
 export const EyeBoard = ({
@@ -20,7 +20,7 @@ export const EyeBoard = ({
   width = DEFAULT_WIDTH,
   debug = false,
   eyes,
-  addToEyes,
+  updateEyeList,
 }: EyeBoardProps) => {
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -88,14 +88,23 @@ export const EyeBoard = ({
 
   const onMouseUp = useCallback(({ clientX, clientY }: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     if (!isDragging && !currentEye) {
-      const rect = canvasRef.current?.getBoundingClientRect() ?? { left: 0, top: 0 };
-      addToEyes(new Eye(new Point(clientX - rect.left, clientY - rect.top)));
+      const rect = canvasRef.current?.getBoundingClientRect() ?? { left: 0, top: 0 },
+        newEye = new Eye(new Point(clientX - rect.left, clientY - rect.top));
+      updateEyeList([...eyes, newEye]);
     }
 
     currentEye?.handleMouseUp();
     setIsMouseDown(false);
     setIsDragging(false);
-  }, [addToEyes, currentEye, isDragging, canvasRef.current]);
+  }, [currentEye, eyes, isDragging, canvasRef.current]);
+
+  const onDoubleClick = useCallback(() => {
+    if (currentEye) {
+      const currentEyeIdx = eyes.findIndex((eye) => eye.id === currentEye.id);
+      updateEyeList([...eyes.slice(0, currentEyeIdx), ...eyes.slice(currentEyeIdx + 1)])
+      setCurrentEye(undefined);
+    }
+  }, [updateEyeList, currentEye]);
 
   return (
     <div style={{ border: '1px solid darkgray' }}>
@@ -108,6 +117,7 @@ export const EyeBoard = ({
         onMouseMove={onMouseMove}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
+        onDoubleClick={onDoubleClick}
       />
     </div>
   );
