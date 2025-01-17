@@ -6,7 +6,7 @@ import { Eye } from '../../classes/Eye';
 import { setCanvasCursor } from '../../utils/draw';
 import { ContainLevels } from '../../classes/ControlBox';
 
-const { INNER_CONTAIN, MARGIN_CONTAIN, NO_CONTAIN } = ContainLevels;
+const { NO_CONTAIN } = ContainLevels;
 
 interface EyeBoardProps {
   width: number;
@@ -31,21 +31,20 @@ export const EyeBoard = ({
   const [currentEye, setCurrentEye] = useState<Eye>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const updateCurrentEye = useCallback((): Eye | undefined => {
+  const calculateCurrentEye = useCallback(() => {
     // if there is already a current eye, avoid looping through eye list
     if (currentEye?.contains(mousePos)) return currentEye;
 
     // else, loop through eye list
     const foundEye = eyes.find((eye) => eye.contains(mousePos));
     setCurrentEye(foundEye);
-    return foundEye;
   }, [mousePos, eyes, currentEye])
 
   const drawDebugView = useCallback((ctx: CanvasRenderingContext2D) => {
-    const currentEye = updateCurrentEye();
+    calculateCurrentEye();
     currentEye?.drawControlBox(ctx);
     setCanvasCursor(ctx, CONTAIN_LEVEL_TO_CURSOR[currentEye?.detailedContains(mousePos) ?? NO_CONTAIN])
-  }, [updateCurrentEye, mousePos])
+  }, [calculateCurrentEye, mousePos, currentEye])
 
   const drawEyes = useCallback((ctx: CanvasRenderingContext2D, frame: number) => {
     if (debug) {
@@ -62,8 +61,6 @@ export const EyeBoard = ({
         windowHeight: height,
         windowWidth: width,
       });
-
-      if (debug) eye.center.label(ctx)
     });
   }, [eyes, mousePos, debug]);
 
@@ -86,23 +83,18 @@ export const EyeBoard = ({
     const rect = canvas.getBoundingClientRect();
     const newMousePos = new Point(e.clientX - rect.left, e.clientY - rect.top);
 
-    setMousePos(newMousePos);
-
-    if (!isMouseDown) return;
-
-    setIsDragging(true);
-    const containLevel = currentEye?.detailedContains(mousePos);
-    if (containLevel === MARGIN_CONTAIN) {
-      currentEye?.resize(newMousePos)
-    } else if (containLevel === INNER_CONTAIN) {
-      currentEye?.move(newMousePos);
+    if (isMouseDown) {
+      setIsDragging(true);
+      currentEye?.handleDrag(newMousePos)
     }
 
+    setMousePos(newMousePos);
   }, [isMouseDown, currentEye, mousePos]);
 
   const onMouseDown = useCallback(() => {
     setIsMouseDown(true);
-  }, []);
+    currentEye?.handleMouseDown(mousePos);
+  }, [currentEye, mousePos]);
 
   const onMouseUp = useCallback(({ clientX, clientY }: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     if (!isDragging && !currentEye) {
@@ -110,16 +102,10 @@ export const EyeBoard = ({
       addToEyes(new Eye(new Point(clientX - rect.left, clientY - rect.top)));
     }
 
+    currentEye?.handleMouseUp();
     setIsMouseDown(false);
     setIsDragging(false);
   }, [addToEyes, currentEye, isDragging, canvasRef.current]);
-
-  // useEffect(() => {
-  //   eyes.forEach(eye => {
-  //     console.log(eye.center);
-  //     console.log(eye.getPlane())
-  //   })
-  // }, [eyes])
 
   return (
     <div style={{ border: '1px solid darkgray' }}>
@@ -132,7 +118,6 @@ export const EyeBoard = ({
         onMouseMove={onMouseMove}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
-      // onClick={onClick}
       />
     </div>
   );

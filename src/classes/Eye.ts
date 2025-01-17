@@ -33,11 +33,24 @@ type EyelidConfig = {
   dir: LidDirections;
 };
 
+enum EyeActions {
+  RESIZING = 'RESIZING',
+  MOVING = 'MOVING',
+  NONE = 'RESIZING',
+}
+
+const CONTAIN_TO_ACTION_DICT: Record<ContainLevels, EyeActions> = {
+  [ContainLevels.INNER_CONTAIN]: EyeActions.MOVING,
+  [ContainLevels.MARGIN_CONTAIN]: EyeActions.RESIZING,
+  [ContainLevels.NO_CONTAIN]: EyeActions.NONE,
+};
+
 export class Eye {
   center: Point;
   pupilRadius: number;
   arcPoint: Point;
   controlBox: ControlBox;
+  action: EyeActions;
 
   color: string;
   lineWidth: number;
@@ -75,6 +88,7 @@ export class Eye {
     this.pupilRadius = pupilRadius;
     this.color = color;
     this.lineWidth = lineWidth;
+    this.action = EyeActions.NONE;
 
     this.arcPoint = new Point(0, this.pupilRadius * -2);
     this.blinking = BlinkingModes.IDLE;
@@ -168,8 +182,25 @@ export class Eye {
   }
 
   resize(newPos: Point) {
-    const dx = Math.abs(newPos.x - this.center.x);
+    const dx = newPos.x - this.center.x;
     this.controlBox.changeWidth(dx * 2);
+  }
+
+  handleMouseDown(mousePos: Point) {
+    const containLevel = this.detailedContains(mousePos);
+    this.action = CONTAIN_TO_ACTION_DICT[containLevel];
+  }
+
+  handleDrag(newPos: Point) {
+    if (this.action === EyeActions.MOVING) {
+      this.move(newPos);
+    } else if (this.action === EyeActions.RESIZING) {
+      this.resize(newPos);
+    }
+  }
+
+  handleMouseUp() {
+    this.action = EyeActions.NONE;
   }
 
   _drawEye(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
