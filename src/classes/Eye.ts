@@ -43,23 +43,23 @@ export class Eye {
 
   blinking: BlinkingModes;
 
-  static THETA = Math.PI / 2;
-  static BLINK_SPEED = 2;
-  static NUM_PUPILS = 3;
+  static readonly THETA = Math.PI / 2;
+  static readonly BLINK_SPEED = 2;
+  static readonly NUM_PUPILS = 3;
 
-  static DEFAULT_CONFIG: Required<EyeConfig> = {
+  static readonly DEFAULT_CONFIG: Required<EyeConfig> = {
     lineWidth: 5,
     color: "orange",
   };
 
-  static DEFAULT_EYELID_CONFIG: EyelidConfig = {
+  static readonly DEFAULT_EYELID_CONFIG: EyelidConfig = {
     dir: LidDirections.UP,
   };
 
   /** Eyelids need an additional angle in order to actually intersect.
    * Not sure why. */
-  static MAGIC_EYELID_RADIUS_FACTOR = 0.93;
-  static MAGIC_CORNER_FACTOR = 1.05;
+  static readonly MAGIC_EYELID_RADIUS_FACTOR = 0.93;
+  static readonly MAGIC_CORNER_FACTOR = 1.05;
 
   constructor(x: number, y: number, r: number, config: EyeConfig) {
     const { color, lineWidth } = {
@@ -135,7 +135,7 @@ export class Eye {
     );
 
     // draw concentric circles
-    [...Array(Eye.NUM_PUPILS).keys()].forEach((i) => {
+    [...new Array(Eye.NUM_PUPILS).keys()].forEach((i) => {
       const logFactor = Math.log(i + 2) / Math.log(Eye.NUM_PUPILS + 1);
       arc(ctx, mapX, mapY, r * logFactor, 0, Math.PI * 2);
     });
@@ -180,30 +180,33 @@ export class Eye {
     ctx.restore();
   }
 
-  drawBox(ctx: CanvasRenderingContext2D, { mousePos }: { mousePos: Point }) {
+  drawBox(
+    ctx: CanvasRenderingContext2D & { canvas?: HTMLCanvasElement },
+    { mousePos }: { mousePos: Point }
+  ) {
     ctx.save();
     ctx.setLineDash([7, 7]);
-    ctx.beginPath();
     ctx.translate(this.x, this.y);
-    ctx.fillStyle = "white";
-    ctx.strokeStyle = "white";
-    ctx.rect(
+
+    const boxPath = new Path2D();
+    boxPath.rect(
       this.startPoint.x,
       -this.r,
       this.endPoint.x - this.startPoint.x,
       2 * this.r
     );
-    ctx.stroke();
 
-    if (ctx.isPointInStroke(mousePos.x, mousePos.y)) {
-      // ctx.canvas.style.cursor = "pointer";
+    const isHover = ctx.isPointInPath(boxPath, mousePos.x, mousePos.y);
+
+    if (isHover) {
       ctx.fill();
-    }
-    // else {
-    //   ctx.canvas.style.cursor = "default";
-    // }
+      if (ctx.canvas) ctx.canvas.style.cursor = "pointer";
+    } else if (ctx.canvas) ctx.canvas.style.cursor = "";
 
-    ctx.closePath();
+    ctx.fillStyle = "white";
+    ctx.strokeStyle = "white";
+    ctx.stroke(boxPath);
+
     ctx.restore();
   }
 }

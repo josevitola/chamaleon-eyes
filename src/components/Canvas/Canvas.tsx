@@ -2,10 +2,10 @@ import React, { useRef, useEffect, useState } from "react";
 
 interface CanvasProps extends React.CanvasHTMLAttributes<HTMLCanvasElement> {
   draw: (ctx: CanvasRenderingContext2D, frameCount: number) => void;
-  animated?: boolean;
+  animation?: boolean;
 }
 
-const Canvas = ({ draw, animated, ...rest }: CanvasProps) => {
+const Canvas = ({ draw, animation, ...rest }: CanvasProps) => {
   const [frame, setFrame] = useState<number>(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -16,9 +16,9 @@ const Canvas = ({ draw, animated, ...rest }: CanvasProps) => {
     let animationFrameId: number;
 
     const render = () => {
-      draw(context, frame);
-      animationFrameId = window.requestAnimationFrame(render);
-      if (animated) {
+      if (animation) {
+        draw(context, frame);
+        animationFrameId = globalThis.requestAnimationFrame(render);
         setFrame(() => frame + 1);
       }
     };
@@ -26,9 +26,9 @@ const Canvas = ({ draw, animated, ...rest }: CanvasProps) => {
     render();
 
     return () => {
-      window.cancelAnimationFrame(animationFrameId);
+      globalThis.cancelAnimationFrame(animationFrameId);
     };
-  }, [draw, animated]);
+  }, [draw, animation]);
 
   return <canvas ref={canvasRef} {...rest} />;
 };

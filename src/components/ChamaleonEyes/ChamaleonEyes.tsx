@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { Canvas } from "../Canvas";
 import {
   DEFAULT_BLINK_PROB,
@@ -7,20 +7,20 @@ import {
 } from "./ChamaleonEyes.constants";
 import { Point } from "../../classes/Point";
 import { Eye } from "../../classes/Eye";
+import { AppContext } from "../../App.context";
 
 interface ChamaleonEyesProps {
   eyes: Eye[];
   width: number;
   height: number;
-  animated?: boolean;
 }
 
 const ChamaleonEyes = ({
-  animated,
   eyes,
   height = DEFAULT_HEIGHT,
   width = DEFAULT_WIDTH,
 }: ChamaleonEyesProps) => {
+  const { animation, dragAndDrop } = useContext(AppContext);
   const [mousePos, setMousePos] = useState<Point>(
     new Point(width / 2, height / 2)
   );
@@ -45,14 +45,12 @@ const ChamaleonEyes = ({
           windowWidth: width,
         });
 
-        eye.drawBox(ctx, { mousePos });
+        if (dragAndDrop) {
+          eye.drawBox(ctx, { mousePos });
+        }
       });
-
-      // if (mousePos) {
-      //   mousePos.label(ctx);
-      // }
     },
-    [mousePos]
+    [mousePos, dragAndDrop]
   );
 
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -66,7 +64,7 @@ const ChamaleonEyes = ({
   return (
     <div style={{ border: "1px solid darkgray" }}>
       <Canvas
-        animated={animated}
+        animation={animation}
         width={width}
         height={height}
         draw={drawEyes}
