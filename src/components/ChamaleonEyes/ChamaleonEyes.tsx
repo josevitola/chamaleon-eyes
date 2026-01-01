@@ -21,10 +21,11 @@ const ChamaleonEyes = ({
   width = DEFAULT_WIDTH,
 }: ChamaleonEyesProps) => {
   const { isAnimationEnabled, isDragAndDropEnabled } = useContext(AppContext);
+  const [mouseDown, setMouseDown] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [mousePos, setMousePos] = useState<Point>(
     new Point(width / 2, height / 2)
   );
-  const [mouseDown, setMouseDown] = useState(false);
 
   const drawBackground = useCallback(
     (ctx: CanvasRenderingContext2D) => {
@@ -40,13 +41,16 @@ const ChamaleonEyes = ({
       eye.updateCursor(ctx, mousePos);
 
       if (mouseDown) {
-        if (eye.isHovered(ctx, mousePos)) {
+        if (eye.isHovered(ctx, mousePos) && !isDragging) {
           eye.onDragStart(ctx, mousePos);
+          setIsDragging(true);
         }
         if (eye.dragMode) {
           eye.onDrag(mousePos);
+          setIsDragging(true);
         }
       } else if (!mouseDown && eye.dragMode) {
+        setIsDragging(false);
         eye.onDragEnd();
       }
     }

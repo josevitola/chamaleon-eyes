@@ -17,13 +17,17 @@ export class Point {
     this.r = r;
   }
 
-  distanceTo(other?: Point) {
+  hypot(other?: Point) {
     const ox = other?.x ?? 0;
     const oy = other?.y ?? 0;
     const dx = this.x - ox;
     const dy = this.y - oy;
 
     return Math.hypot(dx * dx + dy * dy);
+  }
+
+  subY(other: Point) {
+    return this.y - other.y;
   }
 
   draw(
@@ -79,6 +83,6 @@ export class Point {
   }
 
   isHovered(mousePos: Point) {
-    return this.distanceTo(mousePos) < this.r;
+    return this.hypot(mousePos) < this.r;
   }
 }

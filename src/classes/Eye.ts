@@ -55,6 +55,7 @@ export class Eye {
   static readonly THETA = Math.PI / 2;
   static readonly BLINK_SPEED = 2;
   static readonly NUM_PUPILS = 3;
+  static readonly DEFAULT_CONTOUR_RADIUS = 90;
 
   static readonly DEFAULT_CONFIG: Required<EyeConfig> = {
     lineWidth: 5,
@@ -85,7 +86,9 @@ export class Eye {
     this.lineWidth = lineWidth;
 
     const eyeCornerDist =
-      this.contourRadius * Math.sin(Eye.THETA / 2) * Eye.MAGIC_CORNER_FACTOR;
+      Eye.DEFAULT_CONTOUR_RADIUS *
+      Math.sin(Eye.THETA / 2) *
+      Eye.MAGIC_CORNER_FACTOR;
 
     this.startPoint = new Point(-eyeCornerDist, 0);
     this.arcPoint = new Point(0, r * -2);
@@ -103,7 +106,7 @@ export class Eye {
   onDrag(mousePos: Point) {
     switch (this.dragMode) {
       case DragModes.UPPER_CENTER:
-        this.center.y = mousePos.y;
+        this.r -= mousePos.subY(this.upperCenter);
         break;
       case DragModes.LEFT_CENTER:
         this.center.x = mousePos.x;
@@ -119,13 +122,10 @@ export class Eye {
 
   onDragStart(ctx: CanvasRenderingContext2D, mousePos: Point) {
     if (this.upperCenter.isHovered(mousePos)) {
-      console.log("onDragStart", this.id, "UPPER_CENTER");
       this.dragMode = DragModes.UPPER_CENTER;
     } else if (this.leftCenter.isHovered(mousePos)) {
-      console.log("onDragStart", this.id, "LEFT_CENTER");
       this.dragMode = DragModes.LEFT_CENTER;
     } else if (this.rightCenter.isHovered(mousePos)) {
-      console.log("onDragStart", this.id, "RIGHT_CENTER");
       this.dragMode = DragModes.RIGHT_CENTER;
     } else if (this.isHovered(ctx, mousePos)) {
       this.dragMode = DragModes.BODY;
@@ -232,10 +232,6 @@ export class Eye {
     return this.center.add(this.endPoint);
   }
 
-  private get contourRadius(): number {
-    return Math.round((3 * this.r) / (1 - Math.cos(Eye.THETA)));
-  }
-
   private drawPupils(
     ctx: CanvasRenderingContext2D,
     followConfig: EyeFollowConfig
@@ -283,14 +279,14 @@ export class Eye {
   }
 
   private drawContourArc(ctx: CanvasRenderingContext2D) {
-    const { startPoint, arcPoint, endPoint, contourRadius } = this;
+    const { startPoint, arcPoint, endPoint } = this;
     ctx.moveTo(startPoint.x, startPoint.y);
     ctx.arcTo(
       arcPoint.x,
       arcPoint.y,
       endPoint.x,
       endPoint.y,
-      contourRadius * Eye.MAGIC_EYELID_RADIUS_FACTOR
+      Eye.DEFAULT_CONTOUR_RADIUS * Eye.MAGIC_EYELID_RADIUS_FACTOR
     );
     ctx.lineTo(endPoint.x, endPoint.y);
   }
