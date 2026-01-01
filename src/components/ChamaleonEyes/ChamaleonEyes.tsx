@@ -36,35 +36,42 @@ const ChamaleonEyes = ({
     [width, height]
   );
 
-  const applyMouseEffects = useCallback(
-    (ctx: CanvasRenderingContext2D, eye: Eye) => {
-      if (isDebugEnabled) {
-        eye.updateCursor(ctx, mousePos);
-
-        if (eye.isHovered(ctx, mousePos)) {
-          eye.drawBox(ctx, mousePos);
-        }
-
-        if (mouseDown) {
-          if (eye.isHovered(ctx, mousePos) && !isDragging) {
-            eye.onDragStart(ctx, mousePos);
-            setIsDragging(true);
-          }
-          if (eye.dragMode) {
-            eye.onDrag(mousePos);
-            setIsDragging(true);
-          }
-        } else if (!mouseDown && eye.dragMode) {
-          setIsDragging(false);
-          eye.onDragEnd();
-        }
+  const shouldApplyMouseEventsToEye = useCallback(
+    (ctx: CanvasRenderingContext2D, eye: Eye): boolean => {
+      if (!isDebugEnabled) {
+        return false;
       }
+
+      let isHovered = eye.isHovered(ctx, mousePos);
+
+      if (isHovered) {
+        eye.updateCursor(ctx, mousePos);
+        eye.drawBox(ctx, mousePos);
+      }
+
+      if (mouseDown) {
+        if (isHovered && !isDragging) {
+          eye.onDragStart(ctx, mousePos);
+          setIsDragging(true);
+        }
+
+        if (eye.dragMode) {
+          eye.onDrag(mousePos);
+        }
+      } else if (eye.dragMode) {
+        setIsDragging(false);
+        eye.onDragEnd();
+      }
+
+      return isHovered;
     },
     [isDebugEnabled, mouseDown, mousePos]
   );
 
   const drawEyes = useCallback(
     (ctx: CanvasRenderingContext2D, frame: number) => {
+      let hovered = false;
+
       eyes.forEach((eye) => {
         if (frame > 50) {
           if (Math.random() < DEFAULT_BLINK_PROB) {
@@ -80,8 +87,12 @@ const ChamaleonEyes = ({
           windowWidth: width,
         });
 
-        applyMouseEffects(ctx, eye);
+        hovered = shouldApplyMouseEventsToEye(ctx, eye) || hovered;
       });
+
+      if (!hovered) {
+        ctx.canvas.style.cursor = '';
+      }
     },
     [eyes, mousePos, height, width, isDebugEnabled]
   );

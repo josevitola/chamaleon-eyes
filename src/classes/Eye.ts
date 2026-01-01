@@ -109,10 +109,10 @@ export class Eye {
         this.r -= mousePos.subY(this.upperCenter);
         break;
       case DragModes.LEFT_CENTER:
-        this.center.x = mousePos.x;
+        this.startPoint.x -= mousePos.x - this.leftCenter.x;
         break;
       case DragModes.RIGHT_CENTER:
-        this.center.x = mousePos.x;
+        this.endPoint.x -= mousePos.x - this.rightCenter.x;
         break;
       case DragModes.BODY:
         this.center = mousePos;
@@ -196,25 +196,29 @@ export class Eye {
   }
 
   updateCursor(ctx: CanvasRenderingContext2D, mousePos: Point) {
-    if (this.upperCenter.isHovered(mousePos)) {
-      ctx.canvas.style.cursor = 'n-resize';
-    } else if (this.upperLeft.isHovered(mousePos)) {
-      ctx.canvas.style.cursor = 'url("/curved-arrow.png") 8 8, auto';
+    let cursor = '';
+
+    if (this.upperLeft.isHovered(mousePos)) {
+      cursor = 'url("/curved-arrow.png") 8 8, auto';
     } else if (this.upperRight.isHovered(mousePos)) {
-      ctx.canvas.style.cursor = 'url("/curved-arrow-90.png") 8 8, auto';
+      cursor = 'url("/curved-arrow-90.png") 8 8, auto';
     } else if (this.lowerLeft.isHovered(mousePos)) {
-      ctx.canvas.style.cursor = 'url("/curved-arrow-270.png") 8 8, auto';
+      cursor = 'url("/curved-arrow-270.png") 8 8, auto';
     } else if (this.lowerRight.isHovered(mousePos)) {
-      ctx.canvas.style.cursor = 'url("/curved-arrow-180.png") 8 8, auto';
+      cursor = 'url("/curved-arrow-180.png") 8 8, auto';
+    } else if (this.upperCenter.isHovered(mousePos)) {
+      cursor = 'n-resize';
     } else if (this.leftCenter.isHovered(mousePos)) {
-      ctx.canvas.style.cursor = 'w-resize';
+      cursor = 'w-resize';
     } else if (this.rightCenter.isHovered(mousePos)) {
-      ctx.canvas.style.cursor = 'e-resize';
+      cursor = 'e-resize';
     } else if (this.isHovered(ctx, mousePos)) {
-      ctx.canvas.style.cursor = 'grab';
+      cursor = 'grab';
     } else {
-      ctx.canvas.style.cursor = '';
+      cursor = '';
     }
+
+    ctx.canvas.style.cursor = cursor;
   }
 
   isHovered(ctx: CanvasRenderingContext2D, mousePos: Point) {
@@ -249,7 +253,7 @@ export class Eye {
   }
 
   private get upperLeft() {
-    return this.center.add(this.startPoint).addY(-this.r);
+    return this.arcPoint;
   }
 
   private get upperRight() {
