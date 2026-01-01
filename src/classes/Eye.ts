@@ -195,7 +195,7 @@ export class Eye {
     } else if (this.rightCenter.isHovered(mousePos)) {
       ctx.canvas.style.cursor = 'e-resize';
     } else if (this.isHovered(ctx, mousePos)) {
-      ctx.canvas.style.cursor = 'grab';
+      ctx.canvas.style.cursor = "url('/curved-arrow.png') 8 8, grab";
     } else {
       ctx.canvas.style.cursor = '';
     }

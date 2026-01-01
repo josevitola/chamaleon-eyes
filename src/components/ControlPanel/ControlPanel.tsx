@@ -28,6 +28,7 @@ export const ControlPanel = ({ onReset }: { onReset: () => void }) => {
         checked={isDebugEnabled}
       />
       <br />
+      <br />
       <Button label="reset" onClick={onReset} />
     </Box>
   );

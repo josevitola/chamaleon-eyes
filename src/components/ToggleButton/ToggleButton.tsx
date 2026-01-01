@@ -1,9 +1,21 @@
-import { StyledToggleButton } from "./ToggleButton.styles";
+import { StyledToggleButton } from './ToggleButton.styles';
 
-export const ToggleButton = ({ onLabel, offLabel, onClick, checked }: { onLabel: string, offLabel: string, onClick: () => void, checked: boolean }) => {
+interface ToggleButtonProps {
+  onLabel: string;
+  offLabel: string;
+  onClick: () => void;
+  checked: boolean;
+}
+
+export const ToggleButton = ({
+  onLabel,
+  offLabel,
+  onClick,
+  checked,
+}: ToggleButtonProps) => {
   return (
     <StyledToggleButton onClick={onClick} checked={checked}>
       {checked ? onLabel : offLabel}
     </StyledToggleButton>
-  )
+  );
 };
