@@ -31,7 +31,6 @@ type EyelidConfig = {
 export class Eye {
   center: Point;
   r: number;
-  R: number;
 
   color: string;
   lineWidth: number;
@@ -72,10 +71,8 @@ export class Eye {
     this.color = color;
     this.lineWidth = lineWidth;
 
-    this.R = Math.round((3 * r) / (1 - Math.cos(Eye.THETA)));
-
     const eyeCornerDist =
-      this.R * Math.sin(Eye.THETA / 2) * Eye.MAGIC_CORNER_FACTOR;
+      this.contourRadius * Math.sin(Eye.THETA / 2) * Eye.MAGIC_CORNER_FACTOR;
 
     this.startPoint = new Point(-eyeCornerDist, 0);
     this.arcPoint = new Point(0, r * -2);
@@ -90,24 +87,28 @@ export class Eye {
     ctx.translate(this.center.x, this.center.y);
   }
 
-  __drawContourArc(ctx: CanvasRenderingContext2D) {
-    const { startPoint, arcPoint, endPoint, R } = this;
+  private get contourRadius() {
+    return Math.round((3 * this.r) / (1 - Math.cos(Eye.THETA)));
+  }
+
+  private drawContourArc(ctx: CanvasRenderingContext2D) {
+    const { startPoint, arcPoint, endPoint, contourRadius } = this;
     ctx.moveTo(startPoint.x, startPoint.y);
     ctx.arcTo(
       arcPoint.x,
       arcPoint.y,
       endPoint.x,
       endPoint.y,
-      R * Eye.MAGIC_EYELID_RADIUS_FACTOR
+      contourRadius * Eye.MAGIC_EYELID_RADIUS_FACTOR
     );
     ctx.lineTo(endPoint.x, endPoint.y);
   }
 
   drawContour(ctx: CanvasRenderingContext2D) {
     ctx.beginPath();
-    this.__drawContourArc(ctx);
+    this.drawContourArc(ctx);
     ctx.rotate(Math.PI);
-    this.__drawContourArc(ctx);
+    this.drawContourArc(ctx);
     ctx.clip();
     ctx.stroke();
     ctx.closePath();
@@ -182,7 +183,7 @@ export class Eye {
     ctx.restore();
   }
 
-  getBoxPath() {
+  get boxPath() {
     const boxPath = new Path2D();
     boxPath.rect(
       this.center.x + this.startPoint.x,
@@ -194,7 +195,7 @@ export class Eye {
   }
 
   drawBox(ctx: CanvasRenderingContext2D, mousePos: Point) {
-    const boxPath = this.getBoxPath();
+    const boxPath = this.boxPath;
 
     ctx.save();
     ctx.setLineDash([7, 7]);
@@ -203,7 +204,7 @@ export class Eye {
     ctx.strokeStyle = "white";
     ctx.stroke(boxPath);
 
-    this.getCorners().forEach((corner) => {
+    this.corners.forEach((corner) => {
       corner.draw(ctx, mousePos, { coordinates: false });
     });
 
@@ -211,7 +212,15 @@ export class Eye {
   }
 
   updateCursor(ctx: CanvasRenderingContext2D, mousePos: Point) {
-    if (this.isBeingHovered(ctx, mousePos)) {
+    if (this.upperLeftCorner.isBeingHovered(mousePos)) {
+      ctx.canvas.style.cursor = "nw-resize";
+    } else if (this.upperRightCorner.isBeingHovered(mousePos)) {
+      ctx.canvas.style.cursor = "ne-resize";
+    } else if (this.lowerLeftCorner.isBeingHovered(mousePos)) {
+      ctx.canvas.style.cursor = "sw-resize";
+    } else if (this.lowerRightCorner.isBeingHovered(mousePos)) {
+      ctx.canvas.style.cursor = "se-resize";
+    } else if (this.isBeingHovered(ctx, mousePos)) {
       ctx.canvas.style.cursor = "grab";
     } else {
       ctx.canvas.style.cursor = "";
@@ -223,32 +232,32 @@ export class Eye {
   }
 
   isBeingHovered(ctx: CanvasRenderingContext2D, mousePos: Point) {
-    const boxPath = this.getBoxPath();
+    const boxPath = this.boxPath;
     return ctx.isPointInPath(boxPath, mousePos.x, mousePos.y);
   }
 
-  getCorners() {
+  get corners() {
     return [
-      this.getUpperLeftCorner(),
-      this.getUpperRightCorner(),
-      this.getLowerLeftCorner(),
-      this.getLowerRightCorner(),
+      this.upperLeftCorner,
+      this.upperRightCorner,
+      this.lowerLeftCorner,
+      this.lowerRightCorner,
     ];
   }
 
-  getUpperLeftCorner() {
+  get upperLeftCorner() {
     return this.center.clone().add(new Point(this.startPoint.x, -this.r));
   }
 
-  getUpperRightCorner() {
+  get upperRightCorner() {
     return this.center.clone().add(new Point(this.endPoint.x, -this.r));
   }
 
-  getLowerLeftCorner() {
+  get lowerLeftCorner() {
     return this.center.clone().add(new Point(this.startPoint.x, this.r));
   }
 
-  getLowerRightCorner() {
+  get lowerRightCorner() {
     return this.center.clone().add(new Point(this.endPoint.x, this.r));
   }
 }
