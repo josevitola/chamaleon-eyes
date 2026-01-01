@@ -20,7 +20,8 @@ const EyesCanvas = ({
   height = DEFAULT_HEIGHT,
   width = DEFAULT_WIDTH,
 }: EyesCanvasProps) => {
-  const { isAnimationEnabled, isDebugEnabled } = useContext(AppContext);
+  const { isAnimationEnabled, isDebugEnabled, selectEye } =
+    useContext(AppContext);
   const [mouseDown, setMouseDown] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [mousePos, setMousePos] = useState<Point>(
@@ -120,9 +121,20 @@ const EyesCanvas = ({
     setMouseDown(false);
   }, []);
 
-  const onClick = useCallback(() => {
-    console.log('mouse click');
-  }, []);
+  const onClick = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const canvas = e.target as HTMLCanvasElement;
+      const rect = canvas.getBoundingClientRect();
+      const p = new Point(e.clientX - rect.left, e.clientY - rect.top);
+
+      eyes.forEach((eye) => {
+        if (eye.isHovered(canvas.getContext('2d')!, p)) {
+          selectEye(eye);
+        }
+      });
+    },
+    [eyes, selectEye]
+  );
 
   return (
     <Box>

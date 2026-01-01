@@ -1,39 +1,21 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { EyesCanvas, ControlPanel } from '@/molecules';
-import { initializeEyes } from './utils/initializeEyes';
+import { getDefaultEyes } from './utils';
 import { AppContext } from './App.context';
 import { StyledApp } from './App.styles';
 import { Eye } from '@/models';
-
-const CANVAS_WIDTH = 1000,
-  CANVAS_HEIGHT = 500;
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from './constants';
 
 function App() {
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
   const [isDebugEnabled, setDebugEnabled] = useState(false);
-  const [eyes, setEyes] = useState<Eye[]>(
-    initializeEyes({
-      width: CANVAS_WIDTH,
-      height: CANVAS_HEIGHT,
-      cols: 3,
-      rows: 3,
-      lineWidth: 2,
-      radius: 30,
-    })
-  );
+  const [eyes, setEyes] = useState<Eye[]>(getDefaultEyes());
+  const [selectedEye, setSelectedEye] = useState<Eye | null>(null);
 
-  const resetEyes = () => {
-    setEyes(
-      initializeEyes({
-        width: CANVAS_WIDTH,
-        height: CANVAS_HEIGHT,
-        cols: 3,
-        rows: 3,
-        lineWidth: 2,
-        radius: 30,
-      })
-    );
-  };
+  const resetEyes = useCallback(() => {
+    setEyes(getDefaultEyes());
+    setSelectedEye(null);
+  }, []);
 
   const contextValue = useMemo(
     () => ({
@@ -41,8 +23,12 @@ function App() {
       setIsAnimationEnabled,
       isDebugEnabled,
       setDebugEnabled,
+      selectedEye,
+      selectEye: (eye: Eye | null) => {
+        setSelectedEye(eye);
+      },
     }),
-    [isAnimationEnabled, isDebugEnabled]
+    [isAnimationEnabled, isDebugEnabled, selectedEye]
   );
 
   return (

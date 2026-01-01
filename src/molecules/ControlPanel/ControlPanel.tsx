@@ -8,6 +8,7 @@ export const ControlPanel = ({ onReset }: { onReset: () => void }) => {
     setIsAnimationEnabled,
     isDebugEnabled,
     setDebugEnabled,
+    selectedEye,
   } = useContext(AppContext);
 
   return (
@@ -31,6 +32,7 @@ export const ControlPanel = ({ onReset }: { onReset: () => void }) => {
       <br />
       <br />
       <h3>Currently selected eye:</h3>
+      <p>{selectedEye?.id}</p>
     </Box>
   );
 };

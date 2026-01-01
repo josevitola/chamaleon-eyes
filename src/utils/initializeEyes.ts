@@ -1,3 +1,4 @@
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from '@/constants';
 import { Eye } from '../models/Eye';
 
 interface InitializeEyesParams {
@@ -29,4 +30,15 @@ export function initializeEyes({
   }
 
   return eyes;
+}
+
+export function getDefaultEyes() {
+  return initializeEyes({
+    width: CANVAS_WIDTH,
+    height: CANVAS_HEIGHT,
+    cols: 3,
+    rows: 3,
+    lineWidth: 2,
+    radius: 30,
+  });
 }
