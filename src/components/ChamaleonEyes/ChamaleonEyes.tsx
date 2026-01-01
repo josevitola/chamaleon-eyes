@@ -1,14 +1,12 @@
 import { useCallback, useContext, useState } from 'react';
-import { Canvas } from '../Canvas';
+import { Box, Canvas } from '@/components';
 import {
   DEFAULT_BLINK_PROB,
   DEFAULT_HEIGHT,
   DEFAULT_WIDTH,
 } from './ChamaleonEyes.constants';
-import { Point } from '../../classes/Point';
-import { Eye } from '../../classes/Eye';
-import { AppContext } from '../../App.context';
-import { Box } from '../Box';
+import { Eye, Point } from '@/classes';
+import { AppContext } from '@/App.context';
 
 interface ChamaleonEyesProps {
   eyes: Eye[];

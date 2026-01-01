@@ -1,8 +1,8 @@
 import { useContext } from 'react';
-import { AppContext } from '../../App.context';
-import { Box } from '../Box';
+import { AppContext } from '@/App.context';
+import { Box } from '@/components/Box';
 import { ToggleButton } from '../ToggleButton/ToggleButton';
-import { Button } from '../Button/Button';
+import { Button } from '@/components/Button/Button';
 
 export const ControlPanel = ({ onReset }: { onReset: () => void }) => {
   const {
@@ -30,6 +30,9 @@ export const ControlPanel = ({ onReset }: { onReset: () => void }) => {
       <br />
       <br />
       <Button label="reset" onClick={onReset} />
+      <br />
+      <br />
+      <h3>Currently selected eye:</h3>
     </Box>
   );
 };
