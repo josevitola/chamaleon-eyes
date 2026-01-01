@@ -62,6 +62,14 @@ export class Point {
     return new Point(this.x + other.x, this.y + other.y, this.r);
   }
 
+  addX(x: number) {
+    return new Point(this.x + x, this.y, this.r);
+  }
+
+  addY(y: number) {
+    return new Point(this.x, this.y + y, this.r);
+  }
+
   updateOnHover(mousePos: Point) {
     if (this.isBeingHovered(mousePos)) {
       this.r = this.r * 1.1;

@@ -191,7 +191,7 @@ export class Eye {
     ctx.strokeStyle = "white";
     ctx.stroke(this.boxPath);
 
-    this.corners.forEach((corner) => {
+    this.vectors.forEach((corner) => {
       corner.draw(ctx, mousePos, { coordinates: false });
     });
 
@@ -199,14 +199,12 @@ export class Eye {
   }
 
   updateCursor(ctx: CanvasRenderingContext2D, mousePos: Point) {
-    if (this.upperLeftCorner.isBeingHovered(mousePos)) {
-      ctx.canvas.style.cursor = "nw-resize";
-    } else if (this.upperRightCorner.isBeingHovered(mousePos)) {
-      ctx.canvas.style.cursor = "ne-resize";
-    } else if (this.lowerLeftCorner.isBeingHovered(mousePos)) {
-      ctx.canvas.style.cursor = "sw-resize";
-    } else if (this.lowerRightCorner.isBeingHovered(mousePos)) {
-      ctx.canvas.style.cursor = "se-resize";
+    if (this.upperCenter.isBeingHovered(mousePos)) {
+      ctx.canvas.style.cursor = "n-resize";
+    } else if (this.leftCenter.isBeingHovered(mousePos)) {
+      ctx.canvas.style.cursor = "w-resize";
+    } else if (this.rightCenter.isBeingHovered(mousePos)) {
+      ctx.canvas.style.cursor = "e-resize";
     } else if (this.isBeingHovered(ctx, mousePos)) {
       ctx.canvas.style.cursor = "grab";
     } else {
@@ -214,12 +212,14 @@ export class Eye {
     }
   }
 
-  updateCenter(newCenter: Point) {
-    this.center = newCenter;
-  }
-
   isBeingHovered(ctx: CanvasRenderingContext2D, mousePos: Point) {
     return ctx.isPointInPath(this.boxPath, mousePos.x, mousePos.y);
+  }
+
+  drag(ctx: CanvasRenderingContext2D, mousePos: Point) {
+    if (this.isBeingHovered(ctx, mousePos)) {
+      this.center = mousePos;
+    }
   }
 
   private get boxPath() {
@@ -233,28 +233,19 @@ export class Eye {
     return boxPath;
   }
 
-  private get corners() {
-    return [
-      this.upperLeftCorner,
-      this.upperRightCorner,
-      this.lowerLeftCorner,
-      this.lowerRightCorner,
-    ];
+  private get vectors() {
+    return [this.upperCenter, this.leftCenter, this.rightCenter];
   }
 
-  private get upperLeftCorner() {
-    return this.center.clone().add(new Point(this.startPoint.x, -this.r));
+  private get upperCenter() {
+    return this.center.addY(-this.r);
   }
 
-  private get upperRightCorner() {
-    return this.center.clone().add(new Point(this.endPoint.x, -this.r));
+  private get leftCenter() {
+    return this.center.add(this.startPoint);
   }
 
-  private get lowerLeftCorner() {
-    return this.center.clone().add(new Point(this.startPoint.x, this.r));
-  }
-
-  private get lowerRightCorner() {
-    return this.center.clone().add(new Point(this.endPoint.x, this.r));
+  private get rightCenter() {
+    return this.center.add(this.endPoint);
   }
 }
