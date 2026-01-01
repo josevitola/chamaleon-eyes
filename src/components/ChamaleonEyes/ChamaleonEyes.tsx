@@ -8,6 +8,7 @@ import {
 import { Point } from "../../classes/Point";
 import { Eye } from "../../classes/Eye";
 import { AppContext } from "../../App.context";
+import { Box } from "../Box";
 
 interface ChamaleonEyesProps {
   eyes: Eye[];
@@ -104,7 +105,7 @@ const ChamaleonEyes = ({
   }, []);
 
   return (
-    <div style={{ border: "1px solid darkgray" }}>
+    <Box>
       <Canvas
         animation={isAnimationEnabled}
         width={width}
@@ -114,7 +115,7 @@ const ChamaleonEyes = ({
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
       />
-    </div>
+    </Box>
   );
 };
 

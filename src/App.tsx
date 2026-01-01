@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import "./App.css";
 import { ChamaleonEyes } from "./components/ChamaleonEyes";
 import { initializeEyes } from "./utils/initializeEyes";
 import { AppContext } from "./App.context";
+import { ControlPanel } from "./components/ControlPanel";
+import { StyledApp } from "./App.styles";
 
 const CANVAS_WIDTH = 1000,
   CANVAS_HEIGHT = 500;
@@ -21,7 +22,7 @@ function App() {
         lineWidth: 2,
         radius: 30,
       }),
-    [CANVAS_WIDTH, CANVAS_HEIGHT]
+    []
   );
 
   const contextValue = useMemo(() => ({
@@ -32,27 +33,17 @@ function App() {
   }), [isAnimationEnabled, isDebugEnabled]);
 
   return (
-    <>
+    <StyledApp>
       <AppContext.Provider value={contextValue}>
         <ChamaleonEyes
           eyes={eyes}
           width={CANVAS_WIDTH}
           height={CANVAS_HEIGHT}
         />
-      </AppContext.Provider>
 
-      <h1>Camaleones</h1>
-      <div className="card">
-        <button onClick={() => setIsAnimationEnabled(!isAnimationEnabled)}>
-          animation is {isAnimationEnabled ? "on" : "off"}
-        </button>
-        &nbsp;
-        <button onClick={() => setDebugEnabled(!isDebugEnabled)}>
-          debug is {isDebugEnabled ? "on" : "off"}
-        </button>
-      </div>
-      <p className="subheader">Próxima página web</p>
-    </>
+        <ControlPanel />
+      </AppContext.Provider>
+    </StyledApp>
   );
 }
 
