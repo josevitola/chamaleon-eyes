@@ -184,18 +184,34 @@ export class Eye {
       corner.draw(ctx, mousePos, { coordinates: false });
     });
 
+    this.corners.forEach((corner) => {
+      corner.draw(ctx, mousePos, { coordinates: false });
+    });
+
     ctx.restore();
+  }
+
+  private get corners() {
+    return [this.upperLeft, this.upperRight, this.lowerLeft, this.lowerRight];
   }
 
   updateCursor(ctx: CanvasRenderingContext2D, mousePos: Point) {
     if (this.upperCenter.isHovered(mousePos)) {
       ctx.canvas.style.cursor = 'n-resize';
+    } else if (this.upperLeft.isHovered(mousePos)) {
+      ctx.canvas.style.cursor = 'url("/curved-arrow.png") 8 8, auto';
+    } else if (this.upperRight.isHovered(mousePos)) {
+      ctx.canvas.style.cursor = 'url("/curved-arrow-90.png") 8 8, auto';
+    } else if (this.lowerLeft.isHovered(mousePos)) {
+      ctx.canvas.style.cursor = 'url("/curved-arrow-270.png") 8 8, auto';
+    } else if (this.lowerRight.isHovered(mousePos)) {
+      ctx.canvas.style.cursor = 'url("/curved-arrow-180.png") 8 8, auto';
     } else if (this.leftCenter.isHovered(mousePos)) {
       ctx.canvas.style.cursor = 'w-resize';
     } else if (this.rightCenter.isHovered(mousePos)) {
       ctx.canvas.style.cursor = 'e-resize';
     } else if (this.isHovered(ctx, mousePos)) {
-      ctx.canvas.style.cursor = "url('/curved-arrow.png') 8 8, grab";
+      ctx.canvas.style.cursor = 'grab';
     } else {
       ctx.canvas.style.cursor = '';
     }
@@ -230,6 +246,22 @@ export class Eye {
 
   private get rightCenter() {
     return this.center.add(this.endPoint);
+  }
+
+  private get upperLeft() {
+    return this.center.add(this.startPoint).addY(-this.r);
+  }
+
+  private get upperRight() {
+    return this.center.add(this.endPoint).addY(-this.r);
+  }
+
+  private get lowerLeft() {
+    return this.center.add(this.startPoint).addY(this.r);
+  }
+
+  private get lowerRight() {
+    return this.center.add(this.endPoint).addY(this.r);
   }
 
   private drawPupils(
