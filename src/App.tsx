@@ -16,8 +16,8 @@ function App() {
       initializeEyes({
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
-        cols: 1,
-        rows: 1,
+        cols: 3,
+        rows: 3,
         lineWidth: 2,
         radius: 30,
       }),

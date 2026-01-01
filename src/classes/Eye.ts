@@ -193,21 +193,25 @@ export class Eye {
     return boxPath;
   }
 
-  drawBox(ctx: CanvasRenderingContext2D, { mousePos }: { mousePos: Point }) {
+  drawBox(ctx: CanvasRenderingContext2D) {
     const boxPath = this.getBoxPath();
 
     ctx.save();
     ctx.setLineDash([7, 7]);
-
-    if (ctx.isPointInPath(boxPath, mousePos.x, mousePos.y))
-      ctx.canvas.style.cursor = "pointer";
-    else ctx.canvas.style.cursor = "";
 
     ctx.fillStyle = "white";
     ctx.strokeStyle = "white";
     ctx.stroke(boxPath);
 
     ctx.restore();
+  }
+
+  updateCursor(ctx: CanvasRenderingContext2D, mousePos: Point) {
+    if (this.isBeingHovered(ctx, mousePos)) {
+      ctx.canvas.style.cursor = "grab";
+    } else {
+      ctx.canvas.style.cursor = "";
+    }
   }
 
   updateCenter(newCenter: Point) {
