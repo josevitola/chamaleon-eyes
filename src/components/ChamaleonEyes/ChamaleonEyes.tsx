@@ -1,14 +1,14 @@
-import { useCallback, useContext, useState } from "react";
-import { Canvas } from "../Canvas";
+import { useCallback, useContext, useState } from 'react';
+import { Canvas } from '../Canvas';
 import {
   DEFAULT_BLINK_PROB,
   DEFAULT_HEIGHT,
   DEFAULT_WIDTH,
-} from "./ChamaleonEyes.constants";
-import { Point } from "../../classes/Point";
-import { Eye } from "../../classes/Eye";
-import { AppContext } from "../../App.context";
-import { Box } from "../Box";
+} from './ChamaleonEyes.constants';
+import { Point } from '../../classes/Point';
+import { Eye } from '../../classes/Eye';
+import { AppContext } from '../../App.context';
+import { Box } from '../Box';
 
 interface ChamaleonEyesProps {
   eyes: Eye[];
@@ -30,32 +30,38 @@ const ChamaleonEyes = ({
 
   const drawBackground = useCallback(
     (ctx: CanvasRenderingContext2D) => {
-      ctx.fillStyle = "#242424";
+      ctx.fillStyle = '#242424';
       ctx.fillRect(0, 0, width, height);
     },
     [width, height]
   );
 
-  const updateEyeByDragging = useCallback((ctx: CanvasRenderingContext2D, eye: Eye) => {
-    if (isDebugEnabled) {
-      eye.drawBox(ctx, mousePos);
-      eye.updateCursor(ctx, mousePos);
+  const applyMouseEffects = useCallback(
+    (ctx: CanvasRenderingContext2D, eye: Eye) => {
+      if (isDebugEnabled) {
+        eye.updateCursor(ctx, mousePos);
 
-      if (mouseDown) {
-        if (eye.isHovered(ctx, mousePos) && !isDragging) {
-          eye.onDragStart(ctx, mousePos);
-          setIsDragging(true);
+        if (eye.isHovered(ctx, mousePos)) {
+          eye.drawBox(ctx, mousePos);
         }
-        if (eye.dragMode) {
-          eye.onDrag(mousePos);
-          setIsDragging(true);
+
+        if (mouseDown) {
+          if (eye.isHovered(ctx, mousePos) && !isDragging) {
+            eye.onDragStart(ctx, mousePos);
+            setIsDragging(true);
+          }
+          if (eye.dragMode) {
+            eye.onDrag(mousePos);
+            setIsDragging(true);
+          }
+        } else if (!mouseDown && eye.dragMode) {
+          setIsDragging(false);
+          eye.onDragEnd();
         }
-      } else if (!mouseDown && eye.dragMode) {
-        setIsDragging(false);
-        eye.onDragEnd();
       }
-    }
-  }, [isDebugEnabled, mouseDown, mousePos]);
+    },
+    [isDebugEnabled, mouseDown, mousePos]
+  );
 
   const drawEyes = useCallback(
     (ctx: CanvasRenderingContext2D, frame: number) => {
@@ -74,7 +80,7 @@ const ChamaleonEyes = ({
           windowWidth: width,
         });
 
-        updateEyeByDragging(ctx, eye);
+        applyMouseEffects(ctx, eye);
       });
     },
     [eyes, mousePos, height, width, isDebugEnabled]

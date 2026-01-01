@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
-import { ChamaleonEyes } from "./components/ChamaleonEyes";
-import { initializeEyes } from "./utils/initializeEyes";
-import { AppContext } from "./App.context";
-import { ControlPanel } from "./components/ControlPanel";
-import { StyledApp } from "./App.styles";
+import { useMemo, useState } from 'react';
+import { ChamaleonEyes } from './components/ChamaleonEyes';
+import { initializeEyes } from './utils/initializeEyes';
+import { AppContext } from './App.context';
+import { ControlPanel } from './components/ControlPanel';
+import { StyledApp } from './App.styles';
+import { Eye } from './classes/Eye';
 
 const CANVAS_WIDTH = 1000,
   CANVAS_HEIGHT = 500;
@@ -11,9 +12,19 @@ const CANVAS_WIDTH = 1000,
 function App() {
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
   const [isDebugEnabled, setDebugEnabled] = useState(false);
+  const [eyes, setEyes] = useState<Eye[]>(
+    initializeEyes({
+      width: CANVAS_WIDTH,
+      height: CANVAS_HEIGHT,
+      cols: 3,
+      rows: 3,
+      lineWidth: 2,
+      radius: 30,
+    })
+  );
 
-  const eyes = useMemo(
-    () =>
+  const resetEyes = () => {
+    setEyes(
       initializeEyes({
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
@@ -21,16 +32,19 @@ function App() {
         rows: 3,
         lineWidth: 2,
         radius: 30,
-      }),
-    []
-  );
+      })
+    );
+  };
 
-  const contextValue = useMemo(() => ({
-    isAnimationEnabled,
-    setIsAnimationEnabled,
-    isDebugEnabled,
-    setDebugEnabled,
-  }), [isAnimationEnabled, isDebugEnabled]);
+  const contextValue = useMemo(
+    () => ({
+      isAnimationEnabled,
+      setIsAnimationEnabled,
+      isDebugEnabled,
+      setDebugEnabled,
+    }),
+    [isAnimationEnabled, isDebugEnabled]
+  );
 
   return (
     <StyledApp>
@@ -41,7 +55,7 @@ function App() {
           height={CANVAS_HEIGHT}
         />
 
-        <ControlPanel />
+        <ControlPanel onReset={resetEyes} />
       </AppContext.Provider>
     </StyledApp>
   );

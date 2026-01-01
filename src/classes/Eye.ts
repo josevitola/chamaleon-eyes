@@ -1,6 +1,6 @@
-import { arc } from "../utils/draw";
-import { mapRange } from "../utils/mapRange";
-import { Point } from "./Point";
+import { arc } from '../utils/draw';
+import { mapRange } from '../utils/mapRange';
+import { Point } from './Point';
 
 type EyeConfig = {
   lineWidth?: number;
@@ -15,21 +15,21 @@ type EyeFollowConfig = {
 };
 
 enum BlinkingModes {
-  IDLE = "IDLE",
-  OPENING = "OPENING",
-  CLOSING = "CLOSING",
+  IDLE = 'IDLE',
+  OPENING = 'OPENING',
+  CLOSING = 'CLOSING',
 }
 
 enum DragModes {
-  UPPER_CENTER = "UPPER_CENTER",
-  LEFT_CENTER = "LEFT_CENTER",
-  RIGHT_CENTER = "RIGHT_CENTER",
-  BODY = "BODY",
+  UPPER_CENTER = 'UPPER_CENTER',
+  LEFT_CENTER = 'LEFT_CENTER',
+  RIGHT_CENTER = 'RIGHT_CENTER',
+  BODY = 'BODY',
 }
 
 enum LidDirections {
-  UP = "UP",
-  DOWN = "DOWN",
+  UP = 'UP',
+  DOWN = 'DOWN',
 }
 
 type EyelidConfig = {
@@ -59,8 +59,8 @@ export class Eye {
 
   static readonly DEFAULT_CONFIG: Required<EyeConfig> = {
     lineWidth: 5,
-    color: "orange",
-    id: "default",
+    color: 'orange',
+    id: 'default',
   };
 
   static readonly DEFAULT_EYELID_CONFIG: EyelidConfig = {
@@ -176,8 +176,8 @@ export class Eye {
     ctx.save();
     ctx.setLineDash([7, 7]);
 
-    ctx.fillStyle = "white";
-    ctx.strokeStyle = "white";
+    ctx.fillStyle = 'white';
+    ctx.strokeStyle = 'white';
     ctx.stroke(this.boxPath);
 
     this.vectors.forEach((corner) => {
@@ -189,15 +189,15 @@ export class Eye {
 
   updateCursor(ctx: CanvasRenderingContext2D, mousePos: Point) {
     if (this.upperCenter.isHovered(mousePos)) {
-      ctx.canvas.style.cursor = "n-resize";
+      ctx.canvas.style.cursor = 'n-resize';
     } else if (this.leftCenter.isHovered(mousePos)) {
-      ctx.canvas.style.cursor = "w-resize";
+      ctx.canvas.style.cursor = 'w-resize';
     } else if (this.rightCenter.isHovered(mousePos)) {
-      ctx.canvas.style.cursor = "e-resize";
+      ctx.canvas.style.cursor = 'e-resize';
     } else if (this.isHovered(ctx, mousePos)) {
-      ctx.canvas.style.cursor = "grab";
+      ctx.canvas.style.cursor = 'grab';
     } else {
-      ctx.canvas.style.cursor = "";
+      ctx.canvas.style.cursor = '';
     }
   }
 
@@ -205,7 +205,7 @@ export class Eye {
     return ctx.isPointInPath(this.boxPath, mousePos.x, mousePos.y);
   }
 
-  private get boxPath() {
+  get boxPath() {
     const boxPath = new Path2D();
     boxPath.rect(
       this.center.x + this.startPoint.x,

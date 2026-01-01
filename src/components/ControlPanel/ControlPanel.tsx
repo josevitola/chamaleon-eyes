@@ -2,8 +2,9 @@ import { useContext } from 'react';
 import { AppContext } from '../../App.context';
 import { Box } from '../Box';
 import { ToggleButton } from '../ToggleButton/ToggleButton';
+import { Button } from '../Button/Button';
 
-export const ControlPanel = () => {
+export const ControlPanel = ({ onReset }: { onReset: () => void }) => {
   const {
     isAnimationEnabled,
     setIsAnimationEnabled,
@@ -26,6 +27,8 @@ export const ControlPanel = () => {
         onClick={() => setDebugEnabled(!isDebugEnabled)}
         checked={isDebugEnabled}
       />
+      <br />
+      <Button label="reset" onClick={onReset} />
     </Box>
   );
 };
