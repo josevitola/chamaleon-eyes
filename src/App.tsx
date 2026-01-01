@@ -9,12 +9,24 @@ import { CANVAS_HEIGHT, CANVAS_WIDTH } from './constants';
 function App() {
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
   const [isDebugEnabled, setDebugEnabled] = useState(false);
-  const [eyes, setEyes] = useState<Eye[]>(getDefaultEyes());
+  const [eyesById, setEyesById] = useState<Map<string, Eye>>(
+    new Map(getDefaultEyes().map((eye) => [eye.id, eye]))
+  );
   const [selectedEye, setSelectedEye] = useState<Eye | null>(null);
 
   const resetEyes = useCallback(() => {
-    setEyes(getDefaultEyes());
+    setEyesById(new Map(getDefaultEyes().map((eye) => [eye.id, eye])));
     setSelectedEye(null);
+  }, []);
+
+  const handleEyeChange = useCallback((updatedEye: Eye) => {
+    setEyesById((prev) => {
+      const newEyesById = new Map(prev);
+      newEyesById.set(updatedEye.id, updatedEye);
+      return newEyesById;
+    });
+
+    setSelectedEye((prev) => (prev?.id === updatedEye.id ? updatedEye : prev));
   }, []);
 
   const contextValue = useMemo(
@@ -34,9 +46,14 @@ function App() {
   return (
     <StyledApp>
       <AppContext.Provider value={contextValue}>
-        <EyesCanvas eyes={eyes} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} />
+        <EyesCanvas
+          eyesById={eyesById}
+          width={CANVAS_WIDTH}
+          height={CANVAS_HEIGHT}
+          onEyeChange={handleEyeChange}
+        />
 
-        <ControlPanel onReset={resetEyes} />
+        <ControlPanel onReset={resetEyes} onEyeChange={handleEyeChange} />
       </AppContext.Provider>
     </StyledApp>
   );

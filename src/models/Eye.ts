@@ -182,10 +182,6 @@ export class Eye {
     ctx.fill(this.externalBoxPath);
     ctx.stroke(this.externalBoxPath);
 
-    ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
-    ctx.fill(this.boxPath);
-    ctx.stroke(this.boxPath);
-
     this.vectors.forEach((corner) => {
       corner.draw(ctx, mousePos, { coordinates: false });
     });
@@ -193,6 +189,10 @@ export class Eye {
     this.corners.forEach((corner) => {
       corner.draw(ctx, mousePos, { coordinates: false });
     });
+
+    ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
+    ctx.fill(this.boxPath);
+    ctx.stroke(this.boxPath);
 
     ctx.restore();
   }

@@ -10,15 +10,17 @@ import { AppContext } from '@/App.context';
 import { Colors } from '@/styles';
 
 interface EyesCanvasProps {
-  eyes: Eye[];
+  eyesById: Map<string, Eye>;
   width: number;
   height: number;
+  onEyeChange: (eye: Eye) => void;
 }
 
 const EyesCanvas = ({
-  eyes,
+  eyesById,
   height = DEFAULT_HEIGHT,
   width = DEFAULT_WIDTH,
+  onEyeChange,
 }: EyesCanvasProps) => {
   const { isAnimationEnabled, isDebugEnabled, selectEye } =
     useContext(AppContext);
@@ -57,22 +59,24 @@ const EyesCanvas = ({
 
         if (eye.dragMode) {
           eye.onDrag(mousePos);
+          onEyeChange(eye);
         }
       } else if (eye.dragMode) {
         setIsDragging(false);
         eye.onDragEnd();
+        onEyeChange(eye);
       }
 
       return isHovered;
     },
-    [isDebugEnabled, mouseDown, mousePos]
+    [isDebugEnabled, mouseDown, mousePos, onEyeChange]
   );
 
   const drawEyes = useCallback(
     (ctx: CanvasRenderingContext2D, frame: number) => {
       let hovered = false;
 
-      eyes.forEach((eye) => {
+      eyesById.forEach((eye) => {
         if (frame > 50) {
           if (Math.random() < DEFAULT_BLINK_PROB) {
             eye.startBlinking();
@@ -94,7 +98,7 @@ const EyesCanvas = ({
         ctx.canvas.style.cursor = '';
       }
     },
-    [eyes, mousePos, height, width, isDebugEnabled]
+    [eyesById, mousePos, height, width, isDebugEnabled]
   );
 
   const draw = useCallback(
@@ -113,28 +117,29 @@ const EyesCanvas = ({
     setMousePos(p);
   }, []);
 
-  const onMouseDown = useCallback(() => {
-    setMouseDown(true);
-  }, [eyes]);
-
-  const onMouseUp = useCallback(() => {
-    setMouseDown(false);
-  }, []);
-
-  const onClick = useCallback(
+  const onMouseDown = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
+      setMouseDown(true);
       const canvas = e.target as HTMLCanvasElement;
       const rect = canvas.getBoundingClientRect();
       const p = new Point(e.clientX - rect.left, e.clientY - rect.top);
 
-      eyes.forEach((eye) => {
+      let selectedEye = null;
+
+      eyesById.forEach((eye) => {
         if (eye.isHovered(canvas.getContext('2d')!, p)) {
-          selectEye(eye);
+          selectedEye = eye;
         }
       });
+
+      selectEye(selectedEye);
     },
-    [eyes, selectEye]
+    [eyesById, selectEye]
   );
+
+  const onMouseUp = useCallback(() => {
+    setMouseDown(false);
+  }, []);
 
   return (
     <Box>
@@ -146,7 +151,6 @@ const EyesCanvas = ({
         onMouseMove={onMouseMove}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
-        onClick={onClick}
       ></Canvas>
     </Box>
   );
