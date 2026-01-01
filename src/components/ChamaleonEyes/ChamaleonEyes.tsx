@@ -25,11 +25,16 @@ const ChamaleonEyes = ({
     new Point(width / 2, height / 2)
   );
 
-  const drawEyes = useCallback(
-    (ctx: CanvasRenderingContext2D, frame: number) => {
+  const drawBackground = useCallback(
+    (ctx: CanvasRenderingContext2D) => {
       ctx.fillStyle = "#242424";
       ctx.fillRect(0, 0, width, height);
+    },
+    [width, height]
+  );
 
+  const drawEyes = useCallback(
+    (ctx: CanvasRenderingContext2D, frame: number) => {
       eyes.forEach((eye) => {
         if (frame > 50) {
           if (Math.random() < DEFAULT_BLINK_PROB) {
@@ -50,7 +55,15 @@ const ChamaleonEyes = ({
         }
       });
     },
-    [mousePos, dragAndDrop]
+    [eyes, mousePos, height, width]
+  );
+
+  const draw = useCallback(
+    (ctx: CanvasRenderingContext2D, frame: number) => {
+      drawBackground(ctx);
+      drawEyes(ctx, frame);
+    },
+    [drawBackground, drawEyes]
   );
 
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -67,8 +80,20 @@ const ChamaleonEyes = ({
         animation={animation}
         width={width}
         height={height}
-        draw={drawEyes}
+        draw={draw}
         onMouseMove={onMouseMove}
+        onClick={(e) => {
+          const canvas = e.target as HTMLCanvasElement;
+          const rect = canvas.getBoundingClientRect();
+          const p = new Point(e.clientX - rect.left, e.clientY - rect.top);
+          const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+
+          eyes.forEach((eye) => {
+            if (ctx.isPointInPath(eye.getBoxPath(), p.x, p.y)) {
+              alert("Eye clicked!");
+            }
+          });
+        }}
       />
     </div>
   );

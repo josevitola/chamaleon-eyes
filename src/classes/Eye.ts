@@ -180,28 +180,34 @@ export class Eye {
     ctx.restore();
   }
 
+  getBoxPath(ctx?: CanvasRenderingContext2D & { canvas?: HTMLCanvasElement }) {
+    const boxPath = new Path2D();
+    if (ctx) ctx.save();
+    boxPath.rect(
+      this.x + this.startPoint.x,
+      this.y - this.r,
+      this.endPoint.x - this.startPoint.x,
+      2 * this.r
+    );
+    ctx?.translate(this.x, this.y);
+    ctx?.stroke(boxPath);
+    if (ctx) ctx.restore();
+    return boxPath;
+  }
+
   drawBox(
     ctx: CanvasRenderingContext2D & { canvas?: HTMLCanvasElement },
     { mousePos }: { mousePos: Point }
   ) {
     ctx.save();
     ctx.setLineDash([7, 7]);
-    ctx.translate(this.x, this.y);
 
-    const boxPath = new Path2D();
-    boxPath.rect(
-      this.startPoint.x,
-      -this.r,
-      this.endPoint.x - this.startPoint.x,
-      2 * this.r
-    );
+    const boxPath = this.getBoxPath();
 
     const isHover = ctx.isPointInPath(boxPath, mousePos.x, mousePos.y);
 
-    if (isHover) {
-      ctx.fill();
-      if (ctx.canvas) ctx.canvas.style.cursor = "pointer";
-    } else if (ctx.canvas) ctx.canvas.style.cursor = "";
+    if (isHover && ctx.canvas) ctx.canvas.style.cursor = "pointer";
+    else if (ctx.canvas) ctx.canvas.style.cursor = "";
 
     ctx.fillStyle = "white";
     ctx.strokeStyle = "white";
