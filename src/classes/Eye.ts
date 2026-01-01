@@ -193,7 +193,7 @@ export class Eye {
     return boxPath;
   }
 
-  drawBox(ctx: CanvasRenderingContext2D) {
+  drawBox(ctx: CanvasRenderingContext2D, mousePos: Point) {
     const boxPath = this.getBoxPath();
 
     ctx.save();
@@ -202,6 +202,10 @@ export class Eye {
     ctx.fillStyle = "white";
     ctx.strokeStyle = "white";
     ctx.stroke(boxPath);
+
+    this.getCorners().forEach((corner) => {
+      corner.draw(ctx, mousePos, { coordinates: false });
+    });
 
     ctx.restore();
   }
@@ -221,5 +225,30 @@ export class Eye {
   isBeingHovered(ctx: CanvasRenderingContext2D, mousePos: Point) {
     const boxPath = this.getBoxPath();
     return ctx.isPointInPath(boxPath, mousePos.x, mousePos.y);
+  }
+
+  getCorners() {
+    return [
+      this.getUpperLeftCorner(),
+      this.getUpperRightCorner(),
+      this.getLowerLeftCorner(),
+      this.getLowerRightCorner(),
+    ];
+  }
+
+  getUpperLeftCorner() {
+    return this.center.clone().add(new Point(this.startPoint.x, -this.r));
+  }
+
+  getUpperRightCorner() {
+    return this.center.clone().add(new Point(this.endPoint.x, -this.r));
+  }
+
+  getLowerLeftCorner() {
+    return this.center.clone().add(new Point(this.startPoint.x, this.r));
+  }
+
+  getLowerRightCorner() {
+    return this.center.clone().add(new Point(this.endPoint.x, this.r));
   }
 }

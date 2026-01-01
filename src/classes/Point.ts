@@ -1,41 +1,76 @@
 type PointLabelConfig = {
-  label: string;
+  label?: string;
   fontSize?: number;
+  coordinates?: boolean;
 };
 
-const DEFAULT_CONFIG = { label: '', fontSize: 10 };
+const DEFAULT_CONFIG = { label: "", fontSize: 10, coordinates: true };
 
 export class Point {
   x: number;
   y: number;
+  r: number;
 
-  constructor(x = 0, y = 0) {
+  constructor(x = 0, y = 0, r: number = 10) {
     this.x = x;
     this.y = y;
+    this.r = r;
   }
 
-  distanceTo(other = { x: 0, y: 0 }) {
-    const dx = this.x - other.x,
-      dy = this.y - other.y;
+  distanceTo(other?: Point) {
+    const ox = other?.x ?? 0;
+    const oy = other?.y ?? 0;
+    const dx = this.x - ox;
+    const dy = this.y - oy;
 
-    return Math.sqrt(dx * dx + dy * dy);
+    return Math.hypot(dx * dx + dy * dy);
   }
 
-  label(ctx: CanvasRenderingContext2D, config?: PointLabelConfig) {
+  draw(
+    ctx: CanvasRenderingContext2D,
+    mousePos: Point,
+    config?: PointLabelConfig
+  ) {
     const { x, y } = this;
-    const { fontSize, label } = { ...DEFAULT_CONFIG, ...config };
+    const { fontSize, label, coordinates } = { ...DEFAULT_CONFIG, ...config };
+    const formattedLabel = label ? `${label}:` : "";
+    const formattedCoordinates = coordinates
+      ? `(${Math.trunc(x)}, ${Math.trunc(y)})`
+      : "";
 
     ctx.save();
     ctx.font = `${fontSize}px Arial`;
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = "white";
     ctx.beginPath();
     ctx.arc(x, y, Math.floor(fontSize / 2), 0, Math.PI * 2);
     ctx.fill();
     ctx.fillText(
-      `${label ? `${label}:` : ''}(${~~x}, ${~~y})`,
+      `${formattedLabel}${formattedCoordinates}`,
       x + fontSize,
       y + fontSize
     );
     ctx.restore();
+
+    this.updateOnHover(mousePos);
+  }
+
+  clone() {
+    return new Point(this.x, this.y, this.r);
+  }
+
+  add(other: Point) {
+    return new Point(this.x + other.x, this.y + other.y, this.r);
+  }
+
+  updateOnHover(mousePos: Point) {
+    if (this.isBeingHovered(mousePos)) {
+      this.r = this.r * 1.1;
+    } else {
+      this.r = this.r / 1.1;
+    }
+  }
+
+  isBeingHovered(mousePos: Point) {
+    return this.distanceTo(mousePos) < this.r;
   }
 }
