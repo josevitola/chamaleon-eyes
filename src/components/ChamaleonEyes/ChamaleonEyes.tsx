@@ -24,6 +24,7 @@ const ChamaleonEyes = ({
   const [mousePos, setMousePos] = useState<Point>(
     new Point(width / 2, height / 2)
   );
+  const [mouseDown, setMouseDown] = useState(false);
 
   const drawBackground = useCallback(
     (ctx: CanvasRenderingContext2D) => {
@@ -52,6 +53,10 @@ const ChamaleonEyes = ({
 
         if (dragAndDrop) {
           eye.drawBox(ctx, { mousePos });
+
+          if (mouseDown) {
+            eye.updateCenter(mousePos);
+          }
         }
       });
     },
@@ -74,6 +79,14 @@ const ChamaleonEyes = ({
     setMousePos(p);
   }, []);
 
+  const onMouseDown = useCallback(() => {
+    setMouseDown(true);
+  }, []);
+
+  const onMouseUp = useCallback(() => {
+    setMouseDown(false);
+  }, []);
+
   return (
     <div style={{ border: "1px solid darkgray" }}>
       <Canvas
@@ -82,18 +95,8 @@ const ChamaleonEyes = ({
         height={height}
         draw={draw}
         onMouseMove={onMouseMove}
-        onClick={(e) => {
-          const canvas = e.target as HTMLCanvasElement;
-          const rect = canvas.getBoundingClientRect();
-          const p = new Point(e.clientX - rect.left, e.clientY - rect.top);
-          const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-
-          eyes.forEach((eye) => {
-            if (ctx.isPointInPath(eye.getBoxPath(), p.x, p.y)) {
-              alert("Eye clicked!");
-            }
-          });
-        }}
+        onMouseDown={onMouseDown}
+        onMouseUp={onMouseUp}
       />
     </div>
   );

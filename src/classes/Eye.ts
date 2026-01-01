@@ -29,8 +29,7 @@ type EyelidConfig = {
 };
 
 export class Eye {
-  x: number;
-  y: number;
+  center: Point;
   r: number;
   R: number;
 
@@ -67,8 +66,7 @@ export class Eye {
       ...config,
     };
 
-    this.x = x;
-    this.y = y;
+    this.center = new Point(x, y);
     this.r = r;
 
     this.color = color;
@@ -89,7 +87,7 @@ export class Eye {
   setupContext(ctx: CanvasRenderingContext2D) {
     ctx.strokeStyle = this.color;
     ctx.lineWidth = this.lineWidth;
-    ctx.translate(this.x, this.y);
+    ctx.translate(this.center.x, this.center.y);
   }
 
   __drawContourArc(ctx: CanvasRenderingContext2D) {
@@ -122,14 +120,18 @@ export class Eye {
 
     ctx.save();
     ctx.resetTransform();
-    ctx.translate(this.x, this.y);
+    ctx.translate(this.center.x, this.center.y);
 
     const mapX =
       -1 *
-      mapRange(x - this.x, [0, followConfig.windowWidth], [0, startPoint.x]);
+      mapRange(
+        x - this.center.x,
+        [0, followConfig.windowWidth],
+        [0, startPoint.x]
+      );
 
     const mapY = mapRange(
-      y - this.y,
+      y - this.center.y,
       [0, followConfig.windowHeight],
       [0, this.r]
     );
@@ -183,8 +185,8 @@ export class Eye {
   getBoxPath() {
     const boxPath = new Path2D();
     boxPath.rect(
-      this.x + this.startPoint.x,
-      this.y - this.r,
+      this.center.x + this.startPoint.x,
+      this.center.y - this.r,
       this.endPoint.x - this.startPoint.x,
       2 * this.r
     );
@@ -206,5 +208,14 @@ export class Eye {
     ctx.stroke(boxPath);
 
     ctx.restore();
+  }
+
+  updateCenter(newCenter: Point) {
+    this.center = newCenter;
+  }
+
+  isBeingHovered(ctx: CanvasRenderingContext2D, mousePos: Point) {
+    const boxPath = this.getBoxPath();
+    return ctx.isPointInPath(boxPath, mousePos.x, mousePos.y);
   }
 }
