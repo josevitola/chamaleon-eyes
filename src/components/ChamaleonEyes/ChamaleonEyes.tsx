@@ -20,7 +20,7 @@ const ChamaleonEyes = ({
   height = DEFAULT_HEIGHT,
   width = DEFAULT_WIDTH,
 }: ChamaleonEyesProps) => {
-  const { isAnimationEnabled, isDragAndDropEnabled } = useContext(AppContext);
+  const { isAnimationEnabled, isDebugEnabled } = useContext(AppContext);
   const [mouseDown, setMouseDown] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [mousePos, setMousePos] = useState<Point>(
@@ -36,7 +36,7 @@ const ChamaleonEyes = ({
   );
 
   const updateEyeByDragging = useCallback((ctx: CanvasRenderingContext2D, eye: Eye) => {
-    if (isDragAndDropEnabled) {
+    if (isDebugEnabled) {
       eye.drawBox(ctx, mousePos);
       eye.updateCursor(ctx, mousePos);
 
@@ -54,7 +54,7 @@ const ChamaleonEyes = ({
         eye.onDragEnd();
       }
     }
-  }, [isDragAndDropEnabled, mouseDown, mousePos]);
+  }, [isDebugEnabled, mouseDown, mousePos]);
 
   const drawEyes = useCallback(
     (ctx: CanvasRenderingContext2D, frame: number) => {
@@ -76,7 +76,7 @@ const ChamaleonEyes = ({
         updateEyeByDragging(ctx, eye);
       });
     },
-    [eyes, mousePos, height, width, isDragAndDropEnabled]
+    [eyes, mousePos, height, width, isDebugEnabled]
   );
 
   const draw = useCallback(

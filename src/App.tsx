@@ -9,7 +9,7 @@ const CANVAS_WIDTH = 1000,
 
 function App() {
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
-  const [isDragAndDropEnabled, setIsDragAndDropEnabled] = useState(false);
+  const [isDebugEnabled, setDebugEnabled] = useState(false);
 
   const eyes = useMemo(
     () =>
@@ -27,9 +27,9 @@ function App() {
   const contextValue = useMemo(() => ({
     isAnimationEnabled,
     setIsAnimationEnabled,
-    isDragAndDropEnabled,
-    setIsDragAndDropEnabled,
-  }), [isAnimationEnabled, isDragAndDropEnabled]);
+    isDebugEnabled,
+    setDebugEnabled,
+  }), [isAnimationEnabled, isDebugEnabled]);
 
   return (
     <>
@@ -47,8 +47,8 @@ function App() {
           animation is {isAnimationEnabled ? "on" : "off"}
         </button>
         &nbsp;
-        <button onClick={() => setIsDragAndDropEnabled(!isDragAndDropEnabled)}>
-          drag and drop is {isDragAndDropEnabled ? "on" : "off"}
+        <button onClick={() => setDebugEnabled(!isDebugEnabled)}>
+          debug is {isDebugEnabled ? "on" : "off"}
         </button>
       </div>
       <p className="subheader">Próxima página web</p>
