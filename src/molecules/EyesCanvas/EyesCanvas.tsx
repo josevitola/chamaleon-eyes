@@ -4,21 +4,22 @@ import {
   DEFAULT_BLINK_PROB,
   DEFAULT_HEIGHT,
   DEFAULT_WIDTH,
-} from './ChamaleonEyes.constants';
+} from './EyesCanvas.constants';
 import { Eye, Point } from '@/models';
 import { AppContext } from '@/App.context';
+import { Colors } from '@/styles';
 
-interface ChamaleonEyesProps {
+interface EyesCanvasProps {
   eyes: Eye[];
   width: number;
   height: number;
 }
 
-const ChamaleonEyes = ({
+const EyesCanvas = ({
   eyes,
   height = DEFAULT_HEIGHT,
   width = DEFAULT_WIDTH,
-}: ChamaleonEyesProps) => {
+}: EyesCanvasProps) => {
   const { isAnimationEnabled, isDebugEnabled } = useContext(AppContext);
   const [mouseDown, setMouseDown] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -28,7 +29,7 @@ const ChamaleonEyes = ({
 
   const drawBackground = useCallback(
     (ctx: CanvasRenderingContext2D) => {
-      ctx.fillStyle = '#242424';
+      ctx.fillStyle = Colors.BACKGROUND;
       ctx.fillRect(0, 0, width, height);
     },
     [width, height]
@@ -119,6 +120,10 @@ const ChamaleonEyes = ({
     setMouseDown(false);
   }, []);
 
+  const onClick = useCallback(() => {
+    console.log('mouse click');
+  }, []);
+
   return (
     <Box>
       <Canvas
@@ -129,9 +134,10 @@ const ChamaleonEyes = ({
         onMouseMove={onMouseMove}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
-      />
+        onClick={onClick}
+      ></Canvas>
     </Box>
   );
 };
 
-export default ChamaleonEyes;
+export default EyesCanvas;

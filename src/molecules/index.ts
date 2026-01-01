@@ -1,2 +1,2 @@
-export * from './ChamaleonEyes';
+export * from './EyesCanvas';
 export * from './ControlPanel';

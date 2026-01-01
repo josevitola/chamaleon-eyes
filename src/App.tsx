@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ChamaleonEyes, ControlPanel } from '@/molecules';
+import { EyesCanvas, ControlPanel } from '@/molecules';
 import { initializeEyes } from './utils/initializeEyes';
 import { AppContext } from './App.context';
 import { StyledApp } from './App.styles';
@@ -48,11 +48,7 @@ function App() {
   return (
     <StyledApp>
       <AppContext.Provider value={contextValue}>
-        <ChamaleonEyes
-          eyes={eyes}
-          width={CANVAS_WIDTH}
-          height={CANVAS_HEIGHT}
-        />
+        <EyesCanvas eyes={eyes} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} />
 
         <ControlPanel onReset={resetEyes} />
       </AppContext.Provider>
