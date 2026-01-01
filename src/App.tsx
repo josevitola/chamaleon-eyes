@@ -8,8 +8,8 @@ const CANVAS_WIDTH = 1000,
   CANVAS_HEIGHT = 500;
 
 function App() {
-  const [animation, setAnimation] = useState(true);
-  const [dragAndDrop, setDragAndDrop] = useState(false);
+  const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
+  const [isDragAndDropEnabled, setIsDragAndDropEnabled] = useState(false);
 
   const eyes = useMemo(
     () =>
@@ -25,11 +25,11 @@ function App() {
   );
 
   const contextValue = useMemo(() => ({
-    animation,
-    setAnimation,
-    dragAndDrop,
-    setDragAndDrop,
-  }), [animation, dragAndDrop]);
+    isAnimationEnabled,
+    setIsAnimationEnabled,
+    isDragAndDropEnabled,
+    setIsDragAndDropEnabled,
+  }), [isAnimationEnabled, isDragAndDropEnabled]);
 
   return (
     <>
@@ -43,12 +43,12 @@ function App() {
 
       <h1>Camaleones</h1>
       <div className="card">
-        <button onClick={() => setAnimation(!animation)}>
-          animation is {animation ? "on" : "off"}
+        <button onClick={() => setIsAnimationEnabled(!isAnimationEnabled)}>
+          animation is {isAnimationEnabled ? "on" : "off"}
         </button>
         &nbsp;
-        <button onClick={() => setDragAndDrop(!dragAndDrop)}>
-          drag and drop is {dragAndDrop ? "on" : "off"}
+        <button onClick={() => setIsDragAndDropEnabled(!isDragAndDropEnabled)}>
+          drag and drop is {isDragAndDropEnabled ? "on" : "off"}
         </button>
       </div>
       <p className="subheader">Próxima página web</p>

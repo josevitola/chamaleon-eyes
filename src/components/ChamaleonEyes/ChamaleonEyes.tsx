@@ -20,7 +20,7 @@ const ChamaleonEyes = ({
   height = DEFAULT_HEIGHT,
   width = DEFAULT_WIDTH,
 }: ChamaleonEyesProps) => {
-  const { animation, dragAndDrop } = useContext(AppContext);
+  const { isAnimationEnabled, isDragAndDropEnabled } = useContext(AppContext);
   const [mousePos, setMousePos] = useState<Point>(
     new Point(width / 2, height / 2)
   );
@@ -33,6 +33,24 @@ const ChamaleonEyes = ({
     },
     [width, height]
   );
+
+  const updateEyeByDragging = useCallback((ctx: CanvasRenderingContext2D, eye: Eye) => {
+    if (isDragAndDropEnabled) {
+      eye.drawBox(ctx, mousePos);
+      eye.updateCursor(ctx, mousePos);
+
+      if (mouseDown) {
+        if (eye.isHovered(ctx, mousePos)) {
+          eye.onDragStart(ctx, mousePos);
+        }
+        if (eye.dragMode) {
+          eye.onDrag(mousePos);
+        }
+      } else if (!mouseDown && eye.dragMode) {
+        eye.onDragEnd();
+      }
+    }
+  }, [isDragAndDropEnabled, mouseDown, mousePos]);
 
   const drawEyes = useCallback(
     (ctx: CanvasRenderingContext2D, frame: number) => {
@@ -51,17 +69,10 @@ const ChamaleonEyes = ({
           windowWidth: width,
         });
 
-        if (dragAndDrop) {
-          eye.drawBox(ctx, mousePos);
-          eye.updateCursor(ctx, mousePos);
-
-          if (mouseDown && eye.isBeingHovered(ctx, mousePos)) {
-            eye.drag(ctx, mousePos);
-          }
-        }
+        updateEyeByDragging(ctx, eye);
       });
     },
-    [eyes, mousePos, height, width, dragAndDrop]
+    [eyes, mousePos, height, width, isDragAndDropEnabled]
   );
 
   const draw = useCallback(
@@ -82,7 +93,7 @@ const ChamaleonEyes = ({
 
   const onMouseDown = useCallback(() => {
     setMouseDown(true);
-  }, []);
+  }, [eyes]);
 
   const onMouseUp = useCallback(() => {
     setMouseDown(false);
@@ -91,7 +102,7 @@ const ChamaleonEyes = ({
   return (
     <div style={{ border: "1px solid darkgray" }}>
       <Canvas
-        animation={animation}
+        animation={isAnimationEnabled}
         width={width}
         height={height}
         draw={draw}

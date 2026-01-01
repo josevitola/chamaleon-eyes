@@ -5,6 +5,7 @@ import { Point } from "./Point";
 type EyeConfig = {
   lineWidth?: number;
   color?: string;
+  id?: string;
 };
 
 type EyeFollowConfig = {
@@ -17,6 +18,13 @@ enum BlinkingModes {
   IDLE = "IDLE",
   OPENING = "OPENING",
   CLOSING = "CLOSING",
+}
+
+enum DragModes {
+  UPPER_CENTER = "UPPER_CENTER",
+  LEFT_CENTER = "LEFT_CENTER",
+  RIGHT_CENTER = "RIGHT_CENTER",
+  BODY = "BODY",
 }
 
 enum LidDirections {
@@ -32,6 +40,7 @@ export class Eye {
   center: Point;
   r: number;
 
+  id: string;
   color: string;
   lineWidth: number;
 
@@ -41,6 +50,8 @@ export class Eye {
 
   blinking: BlinkingModes;
 
+  dragMode?: DragModes;
+
   static readonly THETA = Math.PI / 2;
   static readonly BLINK_SPEED = 2;
   static readonly NUM_PUPILS = 3;
@@ -48,6 +59,7 @@ export class Eye {
   static readonly DEFAULT_CONFIG: Required<EyeConfig> = {
     lineWidth: 5,
     color: "orange",
+    id: "default",
   };
 
   static readonly DEFAULT_EYELID_CONFIG: EyelidConfig = {
@@ -60,7 +72,7 @@ export class Eye {
   static readonly MAGIC_CORNER_FACTOR = 1.05;
 
   constructor(x: number, y: number, r: number, config: EyeConfig) {
-    const { color, lineWidth } = {
+    const { color, lineWidth, id } = {
       ...Eye.DEFAULT_CONFIG,
       ...config,
     };
@@ -68,6 +80,7 @@ export class Eye {
     this.center = new Point(x, y);
     this.r = r;
 
+    this.id = id;
     this.color = color;
     this.lineWidth = lineWidth;
 
@@ -87,64 +100,40 @@ export class Eye {
     ctx.translate(this.center.x, this.center.y);
   }
 
-  private get contourRadius() {
-    return Math.round((3 * this.r) / (1 - Math.cos(Eye.THETA)));
+  onDrag(mousePos: Point) {
+    switch (this.dragMode) {
+      case DragModes.UPPER_CENTER:
+        this.center.y = mousePos.y;
+        break;
+      case DragModes.LEFT_CENTER:
+        this.center.x = mousePos.x;
+        break;
+      case DragModes.RIGHT_CENTER:
+        this.center.x = mousePos.x;
+        break;
+      case DragModes.BODY:
+        this.center = mousePos;
+        break;
+    }
   }
 
-  private drawContourArc(ctx: CanvasRenderingContext2D) {
-    const { startPoint, arcPoint, endPoint, contourRadius } = this;
-    ctx.moveTo(startPoint.x, startPoint.y);
-    ctx.arcTo(
-      arcPoint.x,
-      arcPoint.y,
-      endPoint.x,
-      endPoint.y,
-      contourRadius * Eye.MAGIC_EYELID_RADIUS_FACTOR
-    );
-    ctx.lineTo(endPoint.x, endPoint.y);
+  onDragStart(ctx: CanvasRenderingContext2D, mousePos: Point) {
+    if (this.upperCenter.isHovered(mousePos)) {
+      console.log("onDragStart", this.id, "UPPER_CENTER");
+      this.dragMode = DragModes.UPPER_CENTER;
+    } else if (this.leftCenter.isHovered(mousePos)) {
+      console.log("onDragStart", this.id, "LEFT_CENTER");
+      this.dragMode = DragModes.LEFT_CENTER;
+    } else if (this.rightCenter.isHovered(mousePos)) {
+      console.log("onDragStart", this.id, "RIGHT_CENTER");
+      this.dragMode = DragModes.RIGHT_CENTER;
+    } else if (this.isHovered(ctx, mousePos)) {
+      this.dragMode = DragModes.BODY;
+    }
   }
 
-  drawContour(ctx: CanvasRenderingContext2D) {
-    ctx.beginPath();
-    this.drawContourArc(ctx);
-    ctx.rotate(Math.PI);
-    this.drawContourArc(ctx);
-    ctx.clip();
-    ctx.stroke();
-    ctx.closePath();
-    ctx.rotate(Math.PI);
-  }
-
-  drawPupils(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
-    const { r, startPoint } = this;
-    const { x, y } = followConfig.point ?? new Point();
-
-    ctx.save();
-    ctx.resetTransform();
-    ctx.translate(this.center.x, this.center.y);
-
-    const mapX =
-      -1 *
-      mapRange(
-        x - this.center.x,
-        [0, followConfig.windowWidth],
-        [0, startPoint.x]
-      );
-
-    const mapY = mapRange(
-      y - this.center.y,
-      [0, followConfig.windowHeight],
-      [0, this.r]
-    );
-
-    // draw concentric circles
-    [...new Array(Eye.NUM_PUPILS).keys()].forEach((i) => {
-      const logFactor = Math.log(i + 2) / Math.log(Eye.NUM_PUPILS + 1);
-      arc(ctx, mapX, mapY, r * logFactor, 0, Math.PI * 2);
-    });
-
-    arc(ctx, mapX, mapY, r * 0.1, 0, 2 * Math.PI);
-    ctx.restore();
+  onDragEnd() {
+    this.dragMode = undefined;
   }
 
   startBlinking() {
@@ -199,27 +188,21 @@ export class Eye {
   }
 
   updateCursor(ctx: CanvasRenderingContext2D, mousePos: Point) {
-    if (this.upperCenter.isBeingHovered(mousePos)) {
+    if (this.upperCenter.isHovered(mousePos)) {
       ctx.canvas.style.cursor = "n-resize";
-    } else if (this.leftCenter.isBeingHovered(mousePos)) {
+    } else if (this.leftCenter.isHovered(mousePos)) {
       ctx.canvas.style.cursor = "w-resize";
-    } else if (this.rightCenter.isBeingHovered(mousePos)) {
+    } else if (this.rightCenter.isHovered(mousePos)) {
       ctx.canvas.style.cursor = "e-resize";
-    } else if (this.isBeingHovered(ctx, mousePos)) {
+    } else if (this.isHovered(ctx, mousePos)) {
       ctx.canvas.style.cursor = "grab";
     } else {
       ctx.canvas.style.cursor = "";
     }
   }
 
-  isBeingHovered(ctx: CanvasRenderingContext2D, mousePos: Point) {
+  isHovered(ctx: CanvasRenderingContext2D, mousePos: Point) {
     return ctx.isPointInPath(this.boxPath, mousePos.x, mousePos.y);
-  }
-
-  drag(ctx: CanvasRenderingContext2D, mousePos: Point) {
-    if (this.isBeingHovered(ctx, mousePos)) {
-      this.center = mousePos;
-    }
   }
 
   private get boxPath() {
@@ -247,5 +230,68 @@ export class Eye {
 
   private get rightCenter() {
     return this.center.add(this.endPoint);
+  }
+
+  private get contourRadius(): number {
+    return Math.round((3 * this.r) / (1 - Math.cos(Eye.THETA)));
+  }
+
+  private drawPupils(
+    ctx: CanvasRenderingContext2D,
+    followConfig: EyeFollowConfig
+  ) {
+    const { r, startPoint } = this;
+    const { x, y } = followConfig.point ?? new Point();
+
+    ctx.save();
+    ctx.resetTransform();
+    ctx.translate(this.center.x, this.center.y);
+
+    const mapX =
+      -1 *
+      mapRange(
+        x - this.center.x,
+        [0, followConfig.windowWidth],
+        [0, startPoint.x]
+      );
+
+    const mapY = mapRange(
+      y - this.center.y,
+      [0, followConfig.windowHeight],
+      [0, this.r]
+    );
+
+    // draw concentric circles
+    [...new Array(Eye.NUM_PUPILS).keys()].forEach((i) => {
+      const logFactor = Math.log(i + 2) / Math.log(Eye.NUM_PUPILS + 1);
+      arc(ctx, mapX, mapY, r * logFactor, 0, Math.PI * 2);
+    });
+
+    arc(ctx, mapX, mapY, r * 0.1, 0, 2 * Math.PI);
+    ctx.restore();
+  }
+
+  private drawContour(ctx: CanvasRenderingContext2D) {
+    ctx.beginPath();
+    this.drawContourArc(ctx);
+    ctx.rotate(Math.PI);
+    this.drawContourArc(ctx);
+    ctx.clip();
+    ctx.stroke();
+    ctx.closePath();
+    ctx.rotate(Math.PI);
+  }
+
+  private drawContourArc(ctx: CanvasRenderingContext2D) {
+    const { startPoint, arcPoint, endPoint, contourRadius } = this;
+    ctx.moveTo(startPoint.x, startPoint.y);
+    ctx.arcTo(
+      arcPoint.x,
+      arcPoint.y,
+      endPoint.x,
+      endPoint.y,
+      contourRadius * Eye.MAGIC_EYELID_RADIUS_FACTOR
+    );
+    ctx.lineTo(endPoint.x, endPoint.y);
   }
 }

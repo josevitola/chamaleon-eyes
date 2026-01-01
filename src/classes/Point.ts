@@ -71,14 +71,14 @@ export class Point {
   }
 
   updateOnHover(mousePos: Point) {
-    if (this.isBeingHovered(mousePos)) {
+    if (this.isHovered(mousePos)) {
       this.r = this.r * 1.1;
     } else {
       this.r = this.r / 1.1;
     }
   }
 
-  isBeingHovered(mousePos: Point) {
+  isHovered(mousePos: Point) {
     return this.distanceTo(mousePos) < this.r;
   }
 }

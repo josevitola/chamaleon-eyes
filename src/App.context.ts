@@ -1,13 +1,13 @@
 import { createContext } from "react";
 
 export const AppContext = createContext<{
-  animation: boolean;
-  setAnimation: (animation: boolean) => void;
-  dragAndDrop: boolean;
-  setDragAndDrop: (dragAndDrop: boolean) => void;
+  isAnimationEnabled: boolean;
+  setIsAnimationEnabled: (isAnimationEnabled: boolean) => void;
+  isDragAndDropEnabled: boolean;
+  setIsDragAndDropEnabled: (isDragAndDropEnabled: boolean) => void;
 }>({
-  animation: false,
-  setAnimation: () => {},
-  dragAndDrop: false,
-  setDragAndDrop: () => {},
+  isAnimationEnabled: false,
+  setIsAnimationEnabled: () => {},
+  isDragAndDropEnabled: false,
+  setIsDragAndDropEnabled: () => {},
 });
