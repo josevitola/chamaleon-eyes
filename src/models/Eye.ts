@@ -56,6 +56,7 @@ export class Eye {
   static readonly BLINK_SPEED = 2;
   static readonly NUM_PUPILS = 3;
   static readonly DEFAULT_CONTOUR_RADIUS = 90;
+  static readonly EXTERNAL_MARGIN = 10;
 
   static readonly DEFAULT_CONFIG: Required<EyeConfig> = {
     lineWidth: 5,
@@ -176,8 +177,13 @@ export class Eye {
     ctx.save();
     ctx.setLineDash([7, 7]);
 
-    ctx.fillStyle = 'white';
     ctx.strokeStyle = 'white';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fill(this.externalBoxPath);
+    ctx.stroke(this.externalBoxPath);
+
+    ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
+    ctx.fill(this.boxPath);
     ctx.stroke(this.boxPath);
 
     this.vectors.forEach((corner) => {
@@ -222,7 +228,7 @@ export class Eye {
   }
 
   isHovered(ctx: CanvasRenderingContext2D, mousePos: Point) {
-    return ctx.isPointInPath(this.boxPath, mousePos.x, mousePos.y);
+    return ctx.isPointInPath(this.externalBoxPath, mousePos.x, mousePos.y);
   }
 
   get boxPath() {
@@ -232,6 +238,17 @@ export class Eye {
       this.center.y - this.r,
       this.endPoint.x - this.startPoint.x,
       2 * this.r
+    );
+    return boxPath;
+  }
+
+  get externalBoxPath() {
+    const boxPath = this.boxPath;
+    boxPath.rect(
+      this.center.x + this.startPoint.x - Eye.EXTERNAL_MARGIN,
+      this.center.y - this.r - Eye.EXTERNAL_MARGIN,
+      this.endPoint.x - this.startPoint.x + 2 * Eye.EXTERNAL_MARGIN,
+      2 * this.r + 2 * Eye.EXTERNAL_MARGIN
     );
     return boxPath;
   }
@@ -253,7 +270,7 @@ export class Eye {
   }
 
   private get upperLeft() {
-    return this.arcPoint;
+    return this.center.addX(this.startPoint.x).addY(-this.r);
   }
 
   private get upperRight() {

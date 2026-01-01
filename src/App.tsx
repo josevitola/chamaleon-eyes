@@ -3,7 +3,7 @@ import { ChamaleonEyes, ControlPanel } from '@/molecules';
 import { initializeEyes } from './utils/initializeEyes';
 import { AppContext } from './App.context';
 import { StyledApp } from './App.styles';
-import { Eye } from '@/classes';
+import { Eye } from '@/models';
 
 const CANVAS_WIDTH = 1000,
   CANVAS_HEIGHT = 500;

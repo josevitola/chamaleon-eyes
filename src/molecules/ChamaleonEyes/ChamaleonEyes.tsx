@@ -5,7 +5,7 @@ import {
   DEFAULT_HEIGHT,
   DEFAULT_WIDTH,
 } from './ChamaleonEyes.constants';
-import { Eye, Point } from '@/classes';
+import { Eye, Point } from '@/models';
 import { AppContext } from '@/App.context';
 
 interface ChamaleonEyesProps {

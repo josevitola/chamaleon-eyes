@@ -1,4 +1,4 @@
-import { Eye } from "../classes/Eye";
+import { Eye } from '../models/Eye';
 
 interface InitializeEyesParams {
   width: number;
