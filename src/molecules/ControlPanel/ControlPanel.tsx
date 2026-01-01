@@ -1,8 +1,6 @@
 import { useContext } from 'react';
 import { AppContext } from '@/App.context';
-import { Box } from '@/components/Box';
-import { ToggleButton } from '../ToggleButton/ToggleButton';
-import { Button } from '@/components/Button/Button';
+import { Box, Button, ToggleButton } from '@/atoms';
 
 export const ControlPanel = ({ onReset }: { onReset: () => void }) => {
   const {

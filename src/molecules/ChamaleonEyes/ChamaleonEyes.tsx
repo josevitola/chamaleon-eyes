@@ -1,5 +1,5 @@
 import { useCallback, useContext, useState } from 'react';
-import { Box, Canvas } from '@/components';
+import { Box, Canvas } from '@/atoms';
 import {
   DEFAULT_BLINK_PROB,
   DEFAULT_HEIGHT,

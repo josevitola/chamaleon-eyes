@@ -1,10 +1,9 @@
 import { useMemo, useState } from 'react';
-import { ChamaleonEyes } from './components/ChamaleonEyes';
+import { ChamaleonEyes, ControlPanel } from '@/molecules';
 import { initializeEyes } from './utils/initializeEyes';
 import { AppContext } from './App.context';
-import { ControlPanel } from './components/ControlPanel';
 import { StyledApp } from './App.styles';
-import { Eye } from './classes/Eye';
+import { Eye } from '@/classes';
 
 const CANVAS_WIDTH = 1000,
   CANVAS_HEIGHT = 500;
