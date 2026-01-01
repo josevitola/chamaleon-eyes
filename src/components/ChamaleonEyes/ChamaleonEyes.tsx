@@ -53,11 +53,11 @@ const ChamaleonEyes = ({
 
         if (dragAndDrop) {
           eye.drawBox(ctx, mousePos);
+          eye.updateCursor(ctx, mousePos);
 
           if (mouseDown && eye.isBeingHovered(ctx, mousePos)) {
             eye.updateCenter(mousePos);
           }
-          eye.updateCursor(ctx, mousePos);
         }
       });
     },
