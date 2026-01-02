@@ -1,1 +1,0 @@
-export { EyeBoard } from './EyeBoard';
