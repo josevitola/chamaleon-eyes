@@ -8,7 +8,7 @@ import { CANVAS_HEIGHT, CANVAS_WIDTH } from './constants';
 
 function App() {
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
-  const [isDebugEnabled, setDebugEnabled] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
   const [eyesById, setEyesById] = useState<Map<string, Eye>>(
     new Map(getDefaultEyes().map((eye) => [eye.id, eye]))
   );
@@ -33,14 +33,14 @@ function App() {
     () => ({
       isAnimationEnabled,
       setIsAnimationEnabled,
-      isDebugEnabled,
-      setDebugEnabled,
+      isEditing,
+      setIsEditing,
       selectedEye,
       selectEye: (eye: Eye | null) => {
         setSelectedEye(eye);
       },
     }),
-    [isAnimationEnabled, isDebugEnabled, selectedEye]
+    [isAnimationEnabled, isEditing, selectedEye]
   );
 
   return (

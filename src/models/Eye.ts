@@ -57,6 +57,7 @@ export class Eye {
   static readonly NUM_PUPILS = 3;
   static readonly DEFAULT_CONTOUR_RADIUS = 90;
   static readonly EXTERNAL_MARGIN = 10;
+  static readonly INFO_FONT_SIZE = 12;
 
   static readonly DEFAULT_CONFIG: Required<EyeConfig> = {
     lineWidth: 5,
@@ -194,7 +195,20 @@ export class Eye {
     ctx.fill(this.boxPath);
     ctx.stroke(this.boxPath);
 
+    this.drawInfo(ctx);
+
     ctx.restore();
+  }
+
+  private drawInfo(ctx: CanvasRenderingContext2D) {
+    ctx.font = `${Eye.INFO_FONT_SIZE}px Arial`;
+    ctx.fillStyle = 'white';
+    ctx.textAlign = 'center';
+    ctx.fillText(
+      `id: ${this.id}`,
+      this.lowerCenter.x,
+      this.lowerCenter.y + Eye.INFO_FONT_SIZE + Eye.EXTERNAL_MARGIN * 1.5
+    );
   }
 
   private get corners() {
@@ -259,6 +273,10 @@ export class Eye {
 
   private get upperCenter() {
     return this.center.addY(-this.r);
+  }
+
+  private get lowerCenter() {
+    return this.center.addY(this.r);
   }
 
   private get leftCenter() {

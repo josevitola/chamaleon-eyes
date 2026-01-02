@@ -22,8 +22,7 @@ const EyesCanvas = ({
   width = DEFAULT_WIDTH,
   onEyeChange,
 }: EyesCanvasProps) => {
-  const { isAnimationEnabled, isDebugEnabled, selectEye } =
-    useContext(AppContext);
+  const { isAnimationEnabled, isEditing, selectEye } = useContext(AppContext);
   const [mouseDown, setMouseDown] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [mousePos, setMousePos] = useState<Point>(
@@ -40,7 +39,7 @@ const EyesCanvas = ({
 
   const shouldApplyMouseEventsToEye = useCallback(
     (ctx: CanvasRenderingContext2D, eye: Eye): boolean => {
-      if (!isDebugEnabled) {
+      if (!isEditing) {
         return false;
       }
 
@@ -69,7 +68,7 @@ const EyesCanvas = ({
 
       return isHovered;
     },
-    [isDebugEnabled, mouseDown, mousePos, onEyeChange]
+    [isEditing, mouseDown, mousePos, onEyeChange]
   );
 
   const drawEyes = useCallback(
@@ -98,7 +97,7 @@ const EyesCanvas = ({
         ctx.canvas.style.cursor = '';
       }
     },
-    [eyesById, mousePos, height, width, isDebugEnabled]
+    [eyesById, mousePos, height, width, isEditing]
   );
 
   const draw = useCallback(
@@ -121,6 +120,11 @@ const EyesCanvas = ({
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       setMouseDown(true);
       const canvas = e.target as HTMLCanvasElement;
+
+      if (!isEditing) {
+        return;
+      }
+
       const rect = canvas.getBoundingClientRect();
       const p = new Point(e.clientX - rect.left, e.clientY - rect.top);
 

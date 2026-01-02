@@ -13,8 +13,8 @@ export const ControlPanel = ({
   const {
     isAnimationEnabled,
     setIsAnimationEnabled,
-    isDebugEnabled,
-    setDebugEnabled,
+    isEditing,
+    setIsEditing,
     selectedEye,
   } = useContext(AppContext);
 
@@ -57,42 +57,44 @@ export const ControlPanel = ({
           checked={isAnimationEnabled}
         />
         <ToggleButton
-          onLabel="debug"
-          offLabel="debug"
-          onClick={() => setDebugEnabled(!isDebugEnabled)}
-          checked={isDebugEnabled}
+          onLabel="preview"
+          offLabel="edit"
+          onClick={() => setIsEditing(!isEditing)}
+          checked={isEditing}
         />
         <Button label="reset" onClick={onReset} />
       </Grid>
       <br />
       <h3>{selectedEye?.id}</h3>
 
-      <Grid cols={2} rows={1}>
-        <span>x:</span>
-        <div>
-          <input
-            type="number"
-            value={selectedEye?.center.x.toFixed(2)}
-            onChange={onXChange}
-          />
-        </div>
-        <span>y:</span>
-        <div>
-          <input
-            type="number"
-            value={selectedEye?.center.y.toFixed(2)}
-            onChange={onYChange}
-          />
-        </div>
-        <span>r:</span>
-        <div>
-          <input
-            type="number"
-            value={selectedEye?.r.toFixed(2)}
-            onChange={onRChange}
-          />
-        </div>
-      </Grid>
+      {isEditing && (
+        <Grid cols={2} rows={1}>
+          <span>x:</span>
+          <div>
+            <input
+              type="number"
+              value={selectedEye?.center.x.toFixed(2)}
+              onChange={onXChange}
+            />
+          </div>
+          <span>y:</span>
+          <div>
+            <input
+              type="number"
+              value={selectedEye?.center.y.toFixed(2)}
+              onChange={onYChange}
+            />
+          </div>
+          <span>Cornea radius:</span>
+          <div>
+            <input
+              type="number"
+              value={selectedEye?.r.toFixed(2)}
+              onChange={onRChange}
+            />
+          </div>
+        </Grid>
+      )}
     </Box>
   );
 };
