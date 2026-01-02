@@ -39,6 +39,7 @@ type EyelidConfig = {
 export class Eye {
   center: Point;
   r: number;
+  theta: number = 0;
 
   id: string;
   color: string;
@@ -103,6 +104,7 @@ export class Eye {
     ctx.strokeStyle = this.color;
     ctx.lineWidth = this.lineWidth;
     ctx.translate(this.center.x, this.center.y);
+    ctx.rotate(this.theta);
   }
 
   onDrag(mousePos: Point) {
@@ -174,14 +176,9 @@ export class Eye {
     ctx.restore();
   }
 
-  drawBox(ctx: CanvasRenderingContext2D, mousePos: Point) {
-    ctx.save();
-    ctx.setLineDash([7, 7]);
-
-    ctx.strokeStyle = 'white';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.fill(this.externalBoxPath);
-    ctx.stroke(this.externalBoxPath);
+  drawBoxes(ctx: CanvasRenderingContext2D, mousePos: Point) {
+    this.drawExternalBox(ctx);
+    this.drawInternalBox(ctx);
 
     this.vectors.forEach((corner) => {
       corner.draw(ctx, mousePos, { coordinates: false });
@@ -190,25 +187,45 @@ export class Eye {
     this.corners.forEach((corner) => {
       corner.draw(ctx, mousePos, { coordinates: false });
     });
-
-    ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
-    ctx.fill(this.boxPath);
-    ctx.stroke(this.boxPath);
-
-    this.drawInfo(ctx);
-
-    ctx.restore();
   }
 
-  private drawInfo(ctx: CanvasRenderingContext2D) {
+  drawInfo(ctx: CanvasRenderingContext2D) {
     ctx.font = `${Eye.INFO_FONT_SIZE}px Arial`;
     ctx.fillStyle = 'white';
     ctx.textAlign = 'center';
     ctx.fillText(
-      `id: ${this.id}`,
+      this.id,
       this.lowerCenter.x,
       this.lowerCenter.y + Eye.INFO_FONT_SIZE + Eye.EXTERNAL_MARGIN * 1.5
     );
+  }
+
+  drawInternalBox(ctx: CanvasRenderingContext2D) {
+    ctx.save();
+    ctx.setLineDash([7, 7]);
+    ctx.translate(this.center.x, this.center.y);
+    ctx.rotate(this.theta);
+
+    ctx.strokeStyle = 'white';
+    ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
+    ctx.fill(this.getBoxPath(false));
+    ctx.stroke(this.getBoxPath(false));
+
+    ctx.restore();
+  }
+
+  drawExternalBox(ctx: CanvasRenderingContext2D) {
+    ctx.save();
+    ctx.setLineDash([7, 7]);
+    ctx.translate(this.center.x, this.center.y);
+    ctx.rotate(this.theta);
+
+    ctx.strokeStyle = 'white';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fill(this.getExternalBoxPath(false));
+    ctx.stroke(this.getExternalBoxPath(false));
+
+    ctx.restore();
   }
 
   private get corners() {
@@ -242,25 +259,29 @@ export class Eye {
   }
 
   isHovered(ctx: CanvasRenderingContext2D, mousePos: Point) {
-    return ctx.isPointInPath(this.externalBoxPath, mousePos.x, mousePos.y);
+    return ctx.isPointInPath(this.getExternalBoxPath(), mousePos.x, mousePos.y);
   }
 
-  get boxPath() {
+  getBoxPath(translated: boolean = true) {
     const boxPath = new Path2D();
     boxPath.rect(
-      this.center.x + this.startPoint.x,
-      this.center.y - this.r,
+      translated ? this.center.x + this.startPoint.x : this.startPoint.x,
+      translated ? this.center.y - this.r : -this.r,
       this.endPoint.x - this.startPoint.x,
       2 * this.r
     );
     return boxPath;
   }
 
-  get externalBoxPath() {
-    const boxPath = this.boxPath;
+  getExternalBoxPath(translated: boolean = true) {
+    const boxPath = new Path2D();
     boxPath.rect(
-      this.center.x + this.startPoint.x - Eye.EXTERNAL_MARGIN,
-      this.center.y - this.r - Eye.EXTERNAL_MARGIN,
+      translated
+        ? this.center.x + this.startPoint.x - Eye.EXTERNAL_MARGIN
+        : this.startPoint.x - Eye.EXTERNAL_MARGIN,
+      translated
+        ? this.center.y - this.r - Eye.EXTERNAL_MARGIN
+        : -this.r - Eye.EXTERNAL_MARGIN,
       this.endPoint.x - this.startPoint.x + 2 * Eye.EXTERNAL_MARGIN,
       2 * this.r + 2 * Eye.EXTERNAL_MARGIN
     );

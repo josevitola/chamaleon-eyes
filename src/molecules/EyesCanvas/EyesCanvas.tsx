@@ -22,7 +22,8 @@ const EyesCanvas = ({
   width = DEFAULT_WIDTH,
   onEyeChange,
 }: EyesCanvasProps) => {
-  const { isAnimationEnabled, isEditing, selectEye } = useContext(AppContext);
+  const { isAnimationEnabled, isEditing, selectEye, selectedEye } =
+    useContext(AppContext);
   const [mouseDown, setMouseDown] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [mousePos, setMousePos] = useState<Point>(
@@ -47,7 +48,7 @@ const EyesCanvas = ({
 
       if (isHovered) {
         eye.updateCursor(ctx, mousePos);
-        eye.drawBox(ctx, mousePos);
+        eye.drawBoxes(ctx, mousePos);
       }
 
       if (mouseDown) {
@@ -89,6 +90,14 @@ const EyesCanvas = ({
           windowHeight: height,
           windowWidth: width,
         });
+
+        if (isEditing) {
+          eye.drawInfo(ctx);
+        }
+
+        if (eye.id === selectedEye?.id) {
+          eye.drawInternalBox(ctx);
+        }
 
         hovered = shouldApplyMouseEventsToEye(ctx, eye) || hovered;
       });
