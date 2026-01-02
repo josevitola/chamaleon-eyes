@@ -14,9 +14,8 @@ export function mapRange(
   value: number,
   [in_min, in_max]: [number, number],
   [out_min, out_max]: [number, number],
-  clamped = false
+  clamped = false,
 ) {
-  const mapped: number =
-    ((value - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
+  const mapped: number = ((value - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
   return clamped ? clamp(mapped, out_min, out_max) : mapped;
 }

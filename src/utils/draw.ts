@@ -7,3 +7,7 @@ export const arc = (
   context.stroke();
   context.closePath();
 };
+
+export const setCanvasCursor = (ctx: CanvasRenderingContext2D, newCursor: string) => {
+  ctx.canvas.style.cursor = newCursor;
+};

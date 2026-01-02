@@ -10,7 +10,7 @@ function App() {
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
   const [isEditing, setIsEditing] = useState(true);
   const [eyesById, setEyesById] = useState<Map<string, Eye>>(
-    new Map(getDefaultEyes().map((eye) => [eye.id, eye]))
+    new Map(getDefaultEyes().map((eye) => [eye.id, eye])),
   );
   const [selectedEye, setSelectedEye] = useState<Eye | null>(null);
 
@@ -40,7 +40,7 @@ function App() {
         setSelectedEye(eye);
       },
     }),
-    [isAnimationEnabled, isEditing, selectedEye]
+    [isAnimationEnabled, isEditing, selectedEye],
   );
 
   return (

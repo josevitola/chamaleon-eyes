@@ -25,9 +25,7 @@ export function initializeEyes({
       const x = ((2 * i - 1) * width) / (2 * rows),
         y = ((2 * j - 1) * height) / (2 * cols);
 
-      eyes.push(
-        new Eye(x, y, radius, { lineWidth, id: `${(i - 1) * cols + j}` })
-      );
+      eyes.push(new Eye(x, y, radius, { lineWidth, id: `${(i - 1) * cols + j}` }));
     }
   }
 
