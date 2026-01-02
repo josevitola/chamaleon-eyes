@@ -1,10 +1,6 @@
 import { useCallback, useContext, useState } from 'react';
 import { Box, Canvas } from '@/atoms';
-import {
-  DEFAULT_BLINK_PROB,
-  DEFAULT_HEIGHT,
-  DEFAULT_WIDTH,
-} from './EyesCanvas.constants';
+import { DEFAULT_BLINK_PROB } from '@/constants';
 import { Eye, Point } from '@/models';
 import { AppContext } from '@/App.context';
 import { Colors } from '@/styles';
@@ -16,26 +12,18 @@ interface EyesCanvasProps {
   onEyeChange: (eye: Eye) => void;
 }
 
-const EyesCanvas = ({
-  eyesById,
-  height = DEFAULT_HEIGHT,
-  width = DEFAULT_WIDTH,
-  onEyeChange,
-}: EyesCanvasProps) => {
-  const { isAnimationEnabled, isEditing, selectEye, selectedEye } =
-    useContext(AppContext);
+const EyesCanvas = ({ eyesById, height, width, onEyeChange }: EyesCanvasProps) => {
+  const { isAnimationEnabled, isEditing, selectEye, selectedEye } = useContext(AppContext);
   const [mouseDown, setMouseDown] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [mousePos, setMousePos] = useState<Point>(
-    new Point(width / 2, height / 2)
-  );
+  const [mousePos, setMousePos] = useState<Point>(new Point(width / 2, height / 2));
 
   const drawBackground = useCallback(
     (ctx: CanvasRenderingContext2D) => {
       ctx.fillStyle = Colors.BACKGROUND;
       ctx.fillRect(0, 0, width, height);
     },
-    [width, height]
+    [width, height],
   );
 
   const shouldApplyMouseEventsToEye = useCallback(
@@ -69,7 +57,7 @@ const EyesCanvas = ({
 
       return isHovered;
     },
-    [isEditing, mouseDown, mousePos, onEyeChange]
+    [isEditing, mouseDown, mousePos, onEyeChange],
   );
 
   const drawEyes = useCallback(
@@ -106,7 +94,7 @@ const EyesCanvas = ({
         ctx.canvas.style.cursor = '';
       }
     },
-    [eyesById, mousePos, height, width, isEditing]
+    [eyesById, mousePos, height, width, isEditing],
   );
 
   const draw = useCallback(
@@ -114,7 +102,7 @@ const EyesCanvas = ({
       drawBackground(ctx);
       drawEyes(ctx, frame);
     },
-    [drawBackground, drawEyes]
+    [drawBackground, drawEyes],
   );
 
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -147,7 +135,7 @@ const EyesCanvas = ({
 
       selectEye(selectedEye);
     },
-    [eyesById, selectEye]
+    [eyesById, selectEye],
   );
 
   const onMouseUp = useCallback(() => {
