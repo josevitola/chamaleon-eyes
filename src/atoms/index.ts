@@ -3,3 +3,4 @@ export * from './Button';
 export * from './Canvas';
 export * from './ToggleButton';
 export * from './Grid';
+export * from './Webcam';

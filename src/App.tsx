@@ -5,6 +5,7 @@ import { AppContext } from './App.context';
 import { StyledApp } from './App.styles';
 import { Eye } from '@/models';
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from './constants';
+import { Webcam } from './atoms';
 
 function App() {
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
@@ -55,6 +56,12 @@ function App() {
 
         <ControlPanel onReset={resetEyes} onEyeChange={handleEyeChange} />
       </AppContext.Provider>
+
+      <Webcam
+        width={CANVAS_WIDTH}
+        height={CANVAS_HEIGHT}
+        style={{ position: 'absolute', top: 0, left: 0 }}
+      />
     </StyledApp>
   );
 }

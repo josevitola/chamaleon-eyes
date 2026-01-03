@@ -89,9 +89,7 @@ export class Eye {
     this.lineWidth = lineWidth;
 
     const eyeCornerDist =
-      Eye.DEFAULT_CONTOUR_RADIUS *
-      Math.sin(Eye.THETA / 2) *
-      Eye.MAGIC_CORNER_FACTOR;
+      Eye.DEFAULT_CONTOUR_RADIUS * Math.sin(Eye.THETA / 2) * Eye.MAGIC_CORNER_FACTOR;
 
     this.startPoint = new Point(-eyeCornerDist, 0);
     this.arcPoint = new Point(0, r * -2);
@@ -196,7 +194,7 @@ export class Eye {
     ctx.fillText(
       this.id,
       this.lowerCenter.x,
-      this.lowerCenter.y + Eye.INFO_FONT_SIZE + Eye.EXTERNAL_MARGIN * 1.5
+      this.lowerCenter.y + Eye.INFO_FONT_SIZE + Eye.EXTERNAL_MARGIN * 1.5,
     );
   }
 
@@ -236,13 +234,13 @@ export class Eye {
     let cursor = '';
 
     if (this.upperLeft.isHovered(mousePos)) {
-      cursor = 'url("/curved-arrow.png") 8 8, auto';
+      cursor = 'url("/cursors/curved-arrow.png") 8 8, auto';
     } else if (this.upperRight.isHovered(mousePos)) {
-      cursor = 'url("/curved-arrow-90.png") 8 8, auto';
+      cursor = 'url("/cursors/curved-arrow-90.png") 8 8, auto';
     } else if (this.lowerLeft.isHovered(mousePos)) {
-      cursor = 'url("/curved-arrow-270.png") 8 8, auto';
+      cursor = 'url("/cursors/curved-arrow-270.png") 8 8, auto';
     } else if (this.lowerRight.isHovered(mousePos)) {
-      cursor = 'url("/curved-arrow-180.png") 8 8, auto';
+      cursor = 'url("/cursors/curved-arrow-180.png") 8 8, auto';
     } else if (this.upperCenter.isHovered(mousePos)) {
       cursor = 'n-resize';
     } else if (this.leftCenter.isHovered(mousePos)) {
@@ -268,7 +266,7 @@ export class Eye {
       translated ? this.center.x + this.startPoint.x : this.startPoint.x,
       translated ? this.center.y - this.r : -this.r,
       this.endPoint.x - this.startPoint.x,
-      2 * this.r
+      2 * this.r,
     );
     return boxPath;
   }
@@ -279,11 +277,9 @@ export class Eye {
       translated
         ? this.center.x + this.startPoint.x - Eye.EXTERNAL_MARGIN
         : this.startPoint.x - Eye.EXTERNAL_MARGIN,
-      translated
-        ? this.center.y - this.r - Eye.EXTERNAL_MARGIN
-        : -this.r - Eye.EXTERNAL_MARGIN,
+      translated ? this.center.y - this.r - Eye.EXTERNAL_MARGIN : -this.r - Eye.EXTERNAL_MARGIN,
       this.endPoint.x - this.startPoint.x + 2 * Eye.EXTERNAL_MARGIN,
-      2 * this.r + 2 * Eye.EXTERNAL_MARGIN
+      2 * this.r + 2 * Eye.EXTERNAL_MARGIN,
     );
     return boxPath;
   }
@@ -324,10 +320,7 @@ export class Eye {
     return this.center.add(this.endPoint).addY(this.r);
   }
 
-  private drawPupils(
-    ctx: CanvasRenderingContext2D,
-    followConfig: EyeFollowConfig
-  ) {
+  private drawPupils(ctx: CanvasRenderingContext2D, followConfig: EyeFollowConfig) {
     const { r, startPoint } = this;
     const { x, y } = followConfig.point ?? new Point();
 
@@ -335,19 +328,9 @@ export class Eye {
     ctx.resetTransform();
     ctx.translate(this.center.x, this.center.y);
 
-    const mapX =
-      -1 *
-      mapRange(
-        x - this.center.x,
-        [0, followConfig.windowWidth],
-        [0, startPoint.x]
-      );
+    const mapX = -1 * mapRange(x - this.center.x, [0, followConfig.windowWidth], [0, startPoint.x]);
 
-    const mapY = mapRange(
-      y - this.center.y,
-      [0, followConfig.windowHeight],
-      [0, this.r]
-    );
+    const mapY = mapRange(y - this.center.y, [0, followConfig.windowHeight], [0, this.r]);
 
     // draw concentric circles
     [...new Array(Eye.NUM_PUPILS).keys()].forEach((i) => {
@@ -378,7 +361,7 @@ export class Eye {
       arcPoint.y,
       endPoint.x,
       endPoint.y,
-      Eye.DEFAULT_CONTOUR_RADIUS * Eye.MAGIC_EYELID_RADIUS_FACTOR
+      Eye.DEFAULT_CONTOUR_RADIUS * Eye.MAGIC_EYELID_RADIUS_FACTOR,
     );
     ctx.lineTo(endPoint.x, endPoint.y);
   }
