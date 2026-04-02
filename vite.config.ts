@@ -14,4 +14,19 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
     },
   },
+  build: {
+    // face-api.js alone is ~640 kB minified; dynamic import isolates it from the main bundle.
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        // face-api is large; without this Rollup hoists it into the entry chunk because the Webcam
+        // async chunk shares other imports with the main bundle.
+        manualChunks(id) {
+          if (id.includes('node_modules') && id.includes('face-api')) {
+            return 'face-api';
+          }
+        },
+      },
+    },
+  },
 });

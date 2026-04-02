@@ -1,11 +1,15 @@
-import { useCallback, useContext, useState } from 'react';
-import { Box, Canvas, Webcam } from '@/atoms';
+import { lazy, Suspense, useCallback, useContext, useState } from 'react';
+import { Box, Canvas } from '@/atoms';
 import { DEFAULT_BLINK_PROB } from '@/constants';
 import { Eye, Point } from '@/models';
 import { AppContext } from '@/App.context';
 import { Colors } from '@/styles';
-import { FaceDetectionHandler } from '@/atoms/Webcam/Webcam';
+import type { FaceDetectionHandler } from '@/atoms/Webcam/Webcam';
 import { getCenterOfDetectionBox } from '@/utils/getCenterOfDetectionBox';
+
+const Webcam = lazy(() =>
+  import('@/atoms/Webcam/Webcam').then((m) => ({ default: m.Webcam })),
+);
 
 interface EyesCanvasProps {
   eyesById: Map<string, Eye>;
@@ -166,12 +170,14 @@ const EyesCanvas = ({ eyesById, height, width, onEyeChange }: EyesCanvasProps) =
         onMouseUp={onMouseUp}
       ></Canvas>
 
-      <Webcam
-        width={width}
-        height={height}
-        style={{ position: 'absolute', top: '1em', left: 0, opacity: 0.2 }}
-        onFaceDetection={onFaceDetection}
-      />
+      <Suspense fallback={null}>
+        <Webcam
+          width={width}
+          height={height}
+          style={{ position: 'absolute', top: '1em', left: 0, opacity: 0.2 }}
+          onFaceDetection={onFaceDetection}
+        />
+      </Suspense>
     </Box>
   );
 };

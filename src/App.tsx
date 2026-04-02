@@ -1,10 +1,13 @@
-import { useCallback, useMemo, useState } from 'react';
-import { EyesCanvas, ControlPanel } from '@/molecules';
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
+import { ControlPanel } from '@/molecules/ControlPanel/ControlPanel';
 import { getDefaultEyes } from './utils';
 import { AppContext } from './App.context';
 import { StyledApp } from './App.styles';
 import { Eye } from '@/models';
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from './constants';
+import { Colors } from '@/styles';
+
+const EyesCanvas = lazy(() => import('@/molecules/EyesCanvas/EyesCanvas'));
 
 function App() {
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(true);
@@ -46,12 +49,24 @@ function App() {
   return (
     <StyledApp>
       <AppContext.Provider value={contextValue}>
-        <EyesCanvas
-          eyesById={eyesById}
-          width={CANVAS_WIDTH}
-          height={CANVAS_HEIGHT}
-          onEyeChange={handleEyeChange}
-        />
+        <Suspense
+          fallback={
+            <div
+              style={{
+                width: CANVAS_WIDTH,
+                height: CANVAS_HEIGHT,
+                background: Colors.BACKGROUND,
+              }}
+            />
+          }
+        >
+          <EyesCanvas
+            eyesById={eyesById}
+            width={CANVAS_WIDTH}
+            height={CANVAS_HEIGHT}
+            onEyeChange={handleEyeChange}
+          />
+        </Suspense>
 
         <ControlPanel onReset={resetEyes} onEyeChange={handleEyeChange} />
       </AppContext.Provider>
