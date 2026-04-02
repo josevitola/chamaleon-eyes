@@ -1,9 +1,11 @@
 import { useCallback, useContext, useState } from 'react';
-import { Box, Canvas } from '@/atoms';
+import { Box, Canvas, Webcam } from '@/atoms';
 import { DEFAULT_BLINK_PROB } from '@/constants';
 import { Eye, Point } from '@/models';
 import { AppContext } from '@/App.context';
 import { Colors } from '@/styles';
+import { FaceDetectionHandler } from '@/atoms/Webcam/Webcam';
+import { getCenterOfDetectionBox } from '@/utils/getCenterOfDetectionBox';
 
 interface EyesCanvasProps {
   eyesById: Map<string, Eye>;
@@ -17,6 +19,7 @@ const EyesCanvas = ({ eyesById, height, width, onEyeChange }: EyesCanvasProps) =
   const [mouseDown, setMouseDown] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [mousePos, setMousePos] = useState<Point>(new Point(width / 2, height / 2));
+  const [facePos, setFacePos] = useState<Point | null>(null);
 
   const drawBackground = useCallback(
     (ctx: CanvasRenderingContext2D) => {
@@ -74,7 +77,7 @@ const EyesCanvas = ({ eyesById, height, width, onEyeChange }: EyesCanvasProps) =
         }
 
         eye.draw(ctx, {
-          point: mousePos,
+          point: facePos || mousePos,
           windowHeight: height,
           windowWidth: width,
         });
@@ -94,7 +97,7 @@ const EyesCanvas = ({ eyesById, height, width, onEyeChange }: EyesCanvasProps) =
         ctx.canvas.style.cursor = '';
       }
     },
-    [eyesById, mousePos, height, width, isEditing],
+    [eyesById, mousePos, facePos, height, width, isEditing],
   );
 
   const draw = useCallback(
@@ -142,8 +145,17 @@ const EyesCanvas = ({ eyesById, height, width, onEyeChange }: EyesCanvasProps) =
     setMouseDown(false);
   }, []);
 
+  const onFaceDetection = useCallback<FaceDetectionHandler>((detection) => {
+    if (!detection) {
+      return;
+    }
+
+    const center = getCenterOfDetectionBox(detection.detection);
+    setFacePos(new Point(center.x, center.y));
+  }, []);
+
   return (
-    <Box>
+    <Box style={{ position: 'relative' }}>
       <Canvas
         animation={isAnimationEnabled}
         width={width}
@@ -153,6 +165,13 @@ const EyesCanvas = ({ eyesById, height, width, onEyeChange }: EyesCanvasProps) =
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
       ></Canvas>
+
+      <Webcam
+        width={width}
+        height={height}
+        style={{ position: 'absolute', top: '1em', left: 0, opacity: 0.2 }}
+        onFaceDetection={onFaceDetection}
+      />
     </Box>
   );
 };

@@ -3,19 +3,29 @@ import {
   createCanvasFromMedia,
   detectAllFaces,
   draw,
+  FaceDetection,
   matchDimensions,
   nets,
   resizeResults,
   TinyFaceDetectorOptions,
+  WithFaceExpressions,
+  WithFaceLandmarks,
 } from 'face-api.js';
 import { StyledWebcamContainer } from './Webcam.styles';
+import { getCenterOfDetectionBox } from '@/utils/getCenterOfDetectionBox';
+import { Point } from '@/models';
+
+export type FaceDetectionHandler = (
+  detection: WithFaceExpressions<WithFaceLandmarks<{ detection: FaceDetection }>> | undefined,
+) => void;
 
 interface WebcamProps extends React.VideoHTMLAttributes<HTMLVideoElement> {
   width: number;
   height: number;
+  onFaceDetection: FaceDetectionHandler;
 }
 
-export const Webcam = ({ width, height, ...rest }: WebcamProps) => {
+export const Webcam = ({ width, height, onFaceDetection, ...rest }: WebcamProps) => {
   const webcamRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isReady, setIsReady] = useState(false);
@@ -31,7 +41,7 @@ export const Webcam = ({ width, height, ...rest }: WebcamProps) => {
         console.error('Error loading models:', error);
       })
       .then(() => {
-        return navigator.mediaDevices.getUserMedia({ video: true });
+        return navigator.mediaDevices.getUserMedia({ video: { facingMode: '' } });
       })
       .then((stream) => {
         if (webcamRef.current) {
@@ -60,8 +70,21 @@ export const Webcam = ({ width, height, ...rest }: WebcamProps) => {
           .withFaceLandmarks()
           .withFaceExpressions();
 
-        canvasObject.getContext('2d')?.clearRect(0, 0, width, height);
-        draw.drawDetections(canvasObject, resizeResults(detections, { width, height }));
+        const ctx = canvasObject.getContext('2d') as CanvasRenderingContext2D;
+
+        ctx.clearRect(0, 0, width, height);
+
+        if (detections.length > 0) {
+          const resizedDetections = resizeResults(detections, { width, height });
+          const point = getCenterOfDetectionBox(resizedDetections[0].detection);
+          point.draw(ctx, new Point(0, 0));
+
+          draw.drawDetections(canvasObject, resizedDetections);
+
+          onFaceDetection(resizedDetections[0]);
+        }
+
+        onFaceDetection(undefined);
       }
     }, 100);
   }, [isReady]);
@@ -75,6 +98,7 @@ export const Webcam = ({ width, height, ...rest }: WebcamProps) => {
         autoPlay
         muted
         onPlay={handlePlay}
+        style={{ transform: 'scaleX(-1)', ...rest.style }}
         {...rest}
       ></video>
     </StyledWebcamContainer>
